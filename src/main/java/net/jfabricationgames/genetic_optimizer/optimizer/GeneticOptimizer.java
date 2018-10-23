@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
 
@@ -107,7 +109,8 @@ public class GeneticOptimizer {
 		}
 	}
 	
-	private static void reverse(DNA[] dnas) {
+	@VisibleForTesting
+	/*private*/ static void reverse(DNA[] dnas) {
 		int len = dnas.length;
 		for (int i = 0; i < len / 2; i++) {
 			DNA temp = dnas[i];
@@ -116,7 +119,8 @@ public class GeneticOptimizer {
 		}
 	}
 	
-	private void createInitialPopulation(DNA[] population) {
+	@VisibleForTesting
+	/*private*/ void createInitialPopulation(DNA[] population) {
 		//create the initial population by the rootPopulation or generate a random population
 		for (int i = 0; i < population.length; i++) {
 			DNA dna;
@@ -145,7 +149,8 @@ public class GeneticOptimizer {
 		}
 	}
 	
-	private void generateChilds(DNA[] population, DNA[] childs) {
+	@VisibleForTesting
+	/*private*/ void generateChilds(DNA[] population, DNA[] childs) {
 		//create new childs
 		for (int i = 0; i < population.length; i++) {
 			//choose one of the best DNAs as father
@@ -174,7 +179,8 @@ public class GeneticOptimizer {
 		}
 	}
 	
-	private void chooseNextPopulation(DNA[] population, DNA[] childs, DNA[] nextPopulation) {
+	@VisibleForTesting
+	/*private*/ void chooseNextPopulation(DNA[] population, DNA[] childs, DNA[] nextPopulation) {
 		//choose the best DNA for the next population
 		int i = 0;
 		int j = 0;
@@ -193,6 +199,10 @@ public class GeneticOptimizer {
 	
 	public DNA getBestDNA() {
 		return bestDNA;
+	}
+	@VisibleForTesting
+	void setBestDNA(DNA dna) {
+		bestDNA = dna;
 	}
 	
 	public boolean isMinimize() {
@@ -221,6 +231,10 @@ public class GeneticOptimizer {
 	}
 	public void setDnaGenerator(RandomDNAGenerator dnaGenerator) {
 		this.dnaGenerator = dnaGenerator;
+	}
+	
+	public Problem getProblem() {
+		return problem;
 	}
 	
 	public Heredity getHeredity() {
