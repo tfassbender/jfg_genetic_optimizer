@@ -37,7 +37,7 @@ public class GeneticOptimizer {
 	/**
 	 * A random generator to generate better random DNAs that the default implementation.
 	 */
-	private RandomDNAGenerator dnaGenerator;
+	private InitialDNAGenerator dnaGenerator;
 	
 	private DNA bestDNA;
 	
@@ -132,7 +132,7 @@ public class GeneticOptimizer {
 				dna = dnaGenerator.generateRandomDNA(problem.getLength());
 			}
 			else {
-				dna = DNA.generateRandomDNA(population.length, randomDNARange);
+				dna = DNA.generateRandomDNA(problem.getLength(), randomDNARange);
 			}
 			
 			dna.setFitness(problem.calculateFitness(dna));
@@ -152,13 +152,13 @@ public class GeneticOptimizer {
 	@VisibleForTesting
 	/*private*/ void generateChilds(DNA[] population, DNA[] childs) {
 		//create new childs
-		for (int i = 0; i < population.length; i++) {
+		for (int i = 0; i < childs.length; i++) {
 			//choose one of the best DNAs as father
 			DNA father = population[(int) (Math.random() * population.length * fathersFraction)];
 			//choose a mother DNA randomly
 			DNA mother = population[(int) (Math.random() * population.length)];
 			
-			DNA child = heredity.mixDNA(mother, father);
+			DNA child = heredity.mixDNA(father, mother);
 			
 			for (Mutation mutation : mutations) {
 				//mutate the child to build new solutions
@@ -184,7 +184,7 @@ public class GeneticOptimizer {
 		//choose the best DNA for the next population
 		int i = 0;
 		int j = 0;
-		for (int d = 0; d < population.length; d++) {
+		for (int d = 0; d < nextPopulation.length; d++) {
 			if (population[i].getFitness() < childs[j].getFitness()) {
 				nextPopulation[d] = population[i];
 				i++;
@@ -194,7 +194,6 @@ public class GeneticOptimizer {
 				j++;
 			}
 		}
-		
 	}
 	
 	public DNA getBestDNA() {
@@ -226,10 +225,10 @@ public class GeneticOptimizer {
 		this.randomDNARange = randomDNARange;
 	}
 	
-	public RandomDNAGenerator getDnaGenerator() {
+	public InitialDNAGenerator getDnaGenerator() {
 		return dnaGenerator;
 	}
-	public void setDnaGenerator(RandomDNAGenerator dnaGenerator) {
+	public void setDnaGenerator(InitialDNAGenerator dnaGenerator) {
 		this.dnaGenerator = dnaGenerator;
 	}
 	
