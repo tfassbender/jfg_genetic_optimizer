@@ -1,6 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.optimizer;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +20,7 @@ public class GeneticOptimizer {
 	private List<Mutation> mutations;
 	private List<DNA> rootPopulation;
 	private int optimizationTime;
+	private int populationSize;
 	
 	private int simulations;
 	
@@ -42,6 +44,9 @@ public class GeneticOptimizer {
 	private DNA bestDNA;
 	
 	/**
+	 * @param problem
+	 *        A wrapper implementation for the problem that calculates the fitness of a DNA.
+	 * 
 	 * @param rootPopulation
 	 *        Some root DNAs. If none are given a random DNA is used.
 	 * 
@@ -57,6 +62,31 @@ public class GeneticOptimizer {
 	public GeneticOptimizer(Problem problem, List<DNA> rootPopulation, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
 		this.problem = problem;
 		this.rootPopulation = rootPopulation;
+		this.populationSize = rootPopulation.size();
+		this.heredity = heredity;
+		this.mutations = mutations;
+		this.optimizationTime = optimizationTime;
+	}
+	/**
+	 * @param problem
+	 *        A wrapper implementation for the problem that calculates the fitness of a DNA.
+	 * 
+	 * @param populationSize
+	 *        The size of the population that should be used.
+	 * 
+	 * @param heredity
+	 *        The heredity for this optimization.
+	 * 
+	 * @param mutations
+	 *        A list of mutations for the optimization.
+	 * 
+	 * @param optimizationTime
+	 *        The optimization time in milliseconds
+	 */
+	public GeneticOptimizer(Problem problem, int populationSize, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
+		this.problem = problem;
+		this.rootPopulation = Collections.emptyList();
+		this.populationSize = populationSize;
 		this.heredity = heredity;
 		this.mutations = mutations;
 		this.optimizationTime = optimizationTime;
@@ -65,9 +95,9 @@ public class GeneticOptimizer {
 	public void optimize() {
 		long start = System.nanoTime();
 		
-		DNA[] population = new DNA[rootPopulation.size()];
-		DNA[] childs = new DNA[rootPopulation.size()];
-		DNA[] nextPopulation = new DNA[rootPopulation.size()];
+		DNA[] population = new DNA[populationSize];
+		DNA[] childs = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
 		
 		//create an empty best DNA
 		bestDNA = new DNA(problem.getLength());
@@ -154,9 +184,14 @@ public class GeneticOptimizer {
 		//create new childs
 		for (int i = 0; i < childs.length; i++) {
 			//choose one of the best DNAs as father
-			DNA father = population[(int) (Math.random() * population.length * fathersFraction)];
+			int fatherIndex = (int) (Math.random() * population.length * fathersFraction);
+			DNA father = population[fatherIndex];
 			//choose a mother DNA randomly
-			DNA mother = population[(int) (Math.random() * population.length)];
+			int motherIndex = (int) (Math.random() * population.length - 1);
+			if (motherIndex >= fatherIndex) {
+				motherIndex++;
+			}
+			DNA mother = population[motherIndex];
 			
 			DNA child = heredity.mixDNA(father, mother);
 			
@@ -175,7 +210,7 @@ public class GeneticOptimizer {
 		//sort the childs by their fitness
 		Arrays.sort(childs);
 		if (!minimize) {
-			reverse(population);
+			reverse(childs);
 		}
 	}
 	
@@ -184,14 +219,28 @@ public class GeneticOptimizer {
 		//choose the best DNA for the next population
 		int i = 0;
 		int j = 0;
-		for (int d = 0; d < nextPopulation.length; d++) {
-			if (population[i].getFitness() < childs[j].getFitness()) {
-				nextPopulation[d] = population[i];
-				i++;
+		if (minimize) {
+			for (int d = 0; d < nextPopulation.length; d++) {
+				if (population[i].getFitness() < childs[j].getFitness()) {
+					nextPopulation[d] = population[i];
+					i++;
+				}
+				else {
+					nextPopulation[d] = childs[j];
+					j++;
+				}
 			}
-			else {
-				nextPopulation[d] = childs[j];
-				j++;
+		}
+		else {
+			for (int d = 0; d < nextPopulation.length; d++) {
+				if (population[i].getFitness() > childs[j].getFitness()) {
+					nextPopulation[d] = population[i];
+					i++;
+				}
+				else {
+					nextPopulation[d] = childs[j];
+					j++;
+				}
 			}
 		}
 	}

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -23,6 +24,133 @@ import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
 
 class GeneticOptimizerTest {
+	
+	@Test
+	public void testOptimizeWithFitnessAsSumOfGenomes_shouldMinimizeTheBestDNAToFitnessOfZero() {
+		//ARRANGE
+		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		when(problem.getLength()).thenReturn(10);
+		//the other chromosomes are generated randomly (by DNA.generateRandomDNA(int, int))
+		DNA optimalPart1 = new DNA(problem.getLength());
+		DNA optimalPart2 = new DNA(problem.getLength());
+		for (int i = 5; i < 10; i++) {
+			optimalPart1.getDNACode()[i] = 1;//only the first half is optimal
+		}
+		for (int i = 0; i < 5; i++) {
+			optimalPart2.getDNACode()[i] = 1;//only the second half is optimal
+		}
+		InitialDNAGenerator generator = generateDnaGeneratorThatReturnsSpecificDnaAt(new int[] {3, 4}, new DNA[] {optimalPart1, optimalPart2},
+				problem.getLength(), 100);
+		
+		Heredity heredity = generateHeredityThatReturnsRandomCombination(0.5);
+		List<Mutation> mutations = new ArrayList<Mutation>(1);
+		Mutation mutation = (dna) -> {
+			for (int i = 0; i < dna.getLength(); i++) {
+				if (Math.random() < 0.01) {//1% chance of lowering the current genome to 0
+					dna.getDNACode()[i] = 0;
+				}
+			}
+		};
+		mutations.add(mutation);
+		int time = 50;//50 ms
+		
+		GeneticOptimizer optimizer = new GeneticOptimizer(problem, 5, heredity, mutations, time);
+		optimizer.setDnaGenerator(generator);
+		
+		//ACT
+		optimizer.optimize();
+		
+		//ASSERT
+		assertEquals(0, optimizer.getBestDNA().getFitness(), 1e-8,
+				"The optimal fitness of 0 should be found as combination of optimalPart1 and optimalPart2");
+	}
+	
+	@Test
+	public void testOptimizeUsingMaximizationProblem_shouldFindTheOptimalFitnessOfZero() {
+		//ARRANGE
+		Problem maximizationProblem = new Problem() {
+			private Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+			
+			@Override
+			public int getLength() {
+				return 10;
+			}
+			@Override
+			public double calculateFitness(DNA dna) {
+				return -problem.calculateFitness(dna);
+			}
+		};
+		//the other chromosomes are generated randomly (by DNA.generateRandomDNA(int, int))
+		DNA optimalPart1 = new DNA(maximizationProblem.getLength());
+		DNA optimalPart2 = new DNA(maximizationProblem.getLength());
+		for (int i = 5; i < 10; i++) {
+			optimalPart1.getDNACode()[i] = 1;//only the first half is optimal
+		}
+		for (int i = 0; i < 5; i++) {
+			optimalPart2.getDNACode()[i] = 1;//only the second half is optimal
+		}
+		InitialDNAGenerator generator = generateDnaGeneratorThatReturnsSpecificDnaAt(new int[] {3, 4}, new DNA[] {optimalPart1, optimalPart2},
+				maximizationProblem.getLength(), 100);
+		
+		Heredity heredity = generateHeredityThatReturnsRandomCombination(0.5);
+		List<Mutation> mutations = new ArrayList<Mutation>(1);
+		Mutation mutation = (dna) -> {
+			for (int i = 0; i < dna.getLength(); i++) {
+				if (Math.random() < 0.01) {//1% chance of lowering the current genome to 0
+					dna.getDNACode()[i] = 0;
+				}
+			}
+		};
+		mutations.add(mutation);
+		int time = 50;//50 ms
+		
+		GeneticOptimizer optimizer = new GeneticOptimizer(maximizationProblem, 5, heredity, mutations, time);
+		optimizer.setDnaGenerator(generator);
+		optimizer.setMinimize(false);
+		
+		//ACT
+		optimizer.optimize();
+		
+		//ASSERT
+		assertEquals(0, optimizer.getBestDNA().getFitness(), 1e-8,
+				"The optimal fitness of 0 should be found as combination of optimalPart1 and optimalPart2");
+	}
+	
+	@Test
+	public void testOptimizeUsingOnlyMutation_shouldFindAnOptimalSolution() {
+		//ARRANGE
+		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		when(problem.getLength()).thenReturn(5);
+		InitialDNAGenerator generator = (size) -> {
+			DNA dna = new DNA(size);
+			for (int i = 0; i < size; i++) {
+				dna.getDNACode()[i] = Math.random() + 1;
+			}
+			return dna;
+		};
+		
+		Heredity heredity = generateHeredityThatReturnsFatherCromosome();
+		List<Mutation> mutations = new ArrayList<Mutation>(1);
+		Mutation mutation = (dna) -> {
+			for (int i = 0; i < dna.getLength(); i++) {
+				if (Math.random() < 0.05) {//5% chance of lowering the current genome to 0
+					dna.getDNACode()[i] = 0;
+				}
+			}
+		};
+		mutations.add(mutation);
+		int time = 50;//50 ms
+		
+		GeneticOptimizer optimizer = new GeneticOptimizer(problem, 5, heredity, mutations, time);
+		optimizer.setDnaGenerator(generator);
+		
+		//ACT
+		optimizer.optimize();
+		
+		//ASSERT
+		assertEquals(0, optimizer.getBestDNA().getFitness(), 1e-8,
+				"The optimal fitness of 0 should be found by the mutations");
+	}
 	
 	@Test
 	public void testReverseDNA_shouldRevertTheArrayContent() {
@@ -313,6 +441,39 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
+	public void testGenerateChilds_noHeredityOfSameChromosomes() {
+		//ARRANGE
+		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		when(problem.getLength()).thenReturn(5);
+		List<DNA> initialPopulation = generateInitialPopulation(2, 5);//small population for testing
+		//use a Heredity that throws an exception when the father and mother chromosomes are the same (using ==, not equals)
+		Heredity heredity = generateHeredityThatNoticesSameChromosomes();
+		List<Mutation> mutations = Collections.emptyList();
+		int time = 1000;//1 second
+		
+		GeneticOptimizer optimizer = new GeneticOptimizer(problem, initialPopulation, heredity, mutations, time);
+		optimizer.setBestDNA(new DNA(5));//set any DNA to prevent NullPointerException
+		DNA[] population = new DNA[2];
+		optimizer.createInitialPopulation(population);
+		DNA[] childs = new DNA[2];
+		
+		//for testing the heredity
+		DNA dna = new DNA(5);
+		
+		//ACT, ASSERT
+		try {
+			for (int i = 0; i < 100; i++) {
+				//the test will fail with an IllegalStateException when the same chromosomes are used for father and mother
+				optimizer.generateChilds(population, childs);
+			}
+		}
+		catch (IllegalStateException ise) {
+			fail("The generateChilds method should not have thrown an IllegalStateException.");
+		}
+		assertThrows(IllegalStateException.class, () -> heredity.mixDNA(dna, dna));
+	}
+	
+	@Test
 	public void testChooseNextPopulation() {
 		//ARRANGE
 		GeneticOptimizer optimizer = generateDefaultGeneticOptimizer();
@@ -404,5 +565,73 @@ class GeneticOptimizerTest {
 			}
 		});
 		return heredity;
+	}
+	
+	private Heredity generateHeredityThatNoticesSameChromosomes() {
+		Heredity heredity = mock(Heredity.class);
+		when(heredity.mixDNA(any(DNA.class), any(DNA.class))).thenAnswer(new Answer<DNA>() {
+			
+			@Override
+			public DNA answer(InvocationOnMock invocation) throws Throwable {
+				DNA fatherDna = invocation.getArgument(0);
+				DNA motherDna = invocation.getArgument(1);
+				if (fatherDna == motherDna) {
+					throw new IllegalStateException("Father and Mother chromosomes mussn't be the same instance.");
+				}
+				return fatherDna;
+			}
+		});
+		return heredity;
+	}
+	
+	private Heredity generateHeredityThatReturnsRandomCombination(double probabilityFather) {
+		Heredity heredity = mock(Heredity.class);
+		when(heredity.mixDNA(any(DNA.class), any(DNA.class))).thenAnswer(new Answer<DNA>() {
+			
+			@Override
+			public DNA answer(InvocationOnMock invocation) throws Throwable {
+				DNA father = invocation.getArgument(0);
+				DNA mother = invocation.getArgument(1);
+				DNA dna = new DNA(father.getLength());
+				double[][] chromosomes = new double[][] {father.getDNACode(), mother.getDNACode()};
+				double[] dnaCode = dna.getDNACode();
+				for (int i = 0; i < father.getLength(); i++) {
+					int selection;
+					if (Math.random() < probabilityFather) {
+						selection = 0;
+					}
+					else {
+						selection = 1;
+					}
+					dnaCode[i] = chromosomes[selection][i];
+				}
+				return dna;
+			}
+		});
+		return heredity;
+	}
+	
+	/**
+	 * A generator that returns DNA.generateRandomDNA(dnaLen, randomDnaRange) except for specified positions where a specified DNA is returned.
+	 */
+	private InitialDNAGenerator generateDnaGeneratorThatReturnsSpecificDnaAt(final int[] pos, final DNA[] dna, final int dnaLen,
+			final int randomDnaRange) {
+		InitialDNAGenerator generator = mock(InitialDNAGenerator.class);
+		when(generator.generateRandomDNA(any(Integer.class))).thenAnswer(new Answer<DNA>() {
+			
+			private int callNum = -1;//to start with index 0
+			
+			@Override
+			public DNA answer(InvocationOnMock invocation) throws Throwable {
+				callNum++;
+				for (int i = 0; i < pos.length; i++) {
+					if (callNum == pos[i]) {
+						return dna[i];
+					}
+				}
+				return DNA.generateRandomDNA(dnaLen, randomDnaRange);
+			}
+		});
+		return generator;
 	}
 }
