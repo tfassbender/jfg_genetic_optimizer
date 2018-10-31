@@ -1,5 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.heredity;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
 
 public class HeredityDoubleCross implements Heredity {
@@ -9,11 +11,8 @@ public class HeredityDoubleCross implements Heredity {
 		int n = father.getLength();
 		DNA child = new DNA(n);
 		
-		int splitAt1 = (int) (Math.random() * n);
-		int splitAt2 = (int) (Math.random() * n);
-		
-		DNA first = father;
-		DNA second = mother;
+		int splitAt1 = (int) (getRandomNumber() * n);
+		int splitAt2 = (int) (getRandomNumber() * n);
 		
 		if (splitAt1 > splitAt2) {
 			int tmp = splitAt2;
@@ -21,7 +20,14 @@ public class HeredityDoubleCross implements Heredity {
 			splitAt1 = tmp;
 		}
 		
-		if (Math.random() < 0.5) {
+		DNA first;
+		DNA second;
+		
+		if (getRandomNumber() < 0.5) {
+			first = father;
+			second = mother;
+		}
+		else {
 			first = mother;
 			second = father;
 		}
@@ -40,5 +46,10 @@ public class HeredityDoubleCross implements Heredity {
 		}
 		
 		return child;
+	}
+	
+	@VisibleForTesting
+	/*private*/ double getRandomNumber() {
+		return Math.random();
 	}
 }

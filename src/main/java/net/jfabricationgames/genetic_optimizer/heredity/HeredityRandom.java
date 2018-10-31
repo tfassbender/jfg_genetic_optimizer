@@ -1,5 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.heredity;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
 
 public class HeredityRandom implements Heredity {
@@ -10,12 +12,12 @@ public class HeredityRandom implements Heredity {
 	 * Generate a new Heredity that is based on a random choosing of father or mother chromosoms.
 	 * 
 	 * @param proabilityFather
-	 * 		The probability to choose the fathers chromosom.
+	 *        The probability to choose the fathers chromosom.
 	 */
 	public HeredityRandom(double probabilityFather) {
 		this.probabilityFather = probabilityFather;
 	}
-
+	
 	@Override
 	public DNA mixDNA(DNA father, DNA mother) {
 		DNA child = new DNA(father.getLength());
@@ -24,7 +26,7 @@ public class HeredityRandom implements Heredity {
 		double[] mothersCode = mother.getDNACode();
 		
 		for (int i = 0; i < father.getLength(); i++) {
-			if (Math.random() > probabilityFather) {
+			if (getRandomNumber() > probabilityFather) {
 				dnaCode[i] = mothersCode[i];
 			}
 			else {
@@ -33,5 +35,14 @@ public class HeredityRandom implements Heredity {
 		}
 		
 		return child;
+	}
+	
+	@VisibleForTesting
+	/*private*/ double getRandomNumber() {
+		return Math.random();
+	}
+	
+	public double getProbabilityFather() {
+		return probabilityFather;
 	}
 }

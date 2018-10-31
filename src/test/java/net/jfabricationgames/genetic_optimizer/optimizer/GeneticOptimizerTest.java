@@ -329,11 +329,6 @@ class GeneticOptimizerTest {
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = new ArrayList<DNA>(0);//no initial population is given
 		
-		//mark each initial population with a specific genome
-		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42d + i;
-		}
-		
 		Heredity heredity = mock(Heredity.class);
 		List<Mutation> mutations = new ArrayList<Mutation>(1);
 		mutations.add(mock(Mutation.class));
