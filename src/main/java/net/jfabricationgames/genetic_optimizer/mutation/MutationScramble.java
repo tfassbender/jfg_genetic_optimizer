@@ -1,10 +1,11 @@
 package net.jfabricationgames.genetic_optimizer.mutation;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
 
 /**
- * Mutation by scramble:
- * Take an interval in the DNA-Sequence and mix the entries in this interval stochastically.
+ * Mutation by scramble: Take an interval in the DNA-Sequence and mix the entries in this interval stochastically.
  */
 public class MutationScramble implements Mutation {
 	
@@ -18,22 +19,33 @@ public class MutationScramble implements Mutation {
 	
 	@Override
 	public void mutate(DNA dna) {
-		if (Math.random() < mutationRate) {
+		if (getRandomNumber() < mutationRate) {
 			int n = dna.getLength();
-			int k1 = (int) (Math.random() * n);
-			int k2 = (int) (Math.random() * n);
+			int k1 = (int) (getRandomNumber() * n);
+			int k2 = (int) (getRandomNumber() * n);
 			int dist = Math.abs(k1 - k2);
-			int swaps = (int) (Math.random() * maxSwaps);
+			int swaps = (int) (getRandomNumber() * getMaxSwaps());
 			
+			double[] dnaCode = dna.getDNACode();
+			int minK = Math.min(k1, k2);
 			for (int i = 0; i < swaps; i++) {
-				int d1 = (int) (Math.random() * dist);
-				int d2 = (int) (Math.random() * dist);
+				int d1 = (int) (getRandomNumber() * dist) + minK;
+				int d2 = (int) (getRandomNumber() * dist) + minK;
 				
-				double[] dnaCode = dna.getDNACode();
 				double tmp = dnaCode[d1];
 				dnaCode[d1] = dnaCode[d2];
 				dnaCode[d2] = tmp;
 			}
 		}
+	}
+	
+	@VisibleForTesting
+	/*private*/ double getRandomNumber() {
+		return Math.random();
+	}
+	
+	@VisibleForTesting
+	/*private*/ int getMaxSwaps() {
+		return maxSwaps;
 	}
 }

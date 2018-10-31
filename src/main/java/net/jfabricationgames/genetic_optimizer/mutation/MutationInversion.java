@@ -1,10 +1,11 @@
 package net.jfabricationgames.genetic_optimizer.mutation;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
 
 /**
- * Mutation by inversion:
- * Choose a range within the sequence and invert it
+ * Mutation by inversion: Choose a range within the sequence and invert it
  */
 public class MutationInversion implements Mutation {
 	
@@ -20,18 +21,33 @@ public class MutationInversion implements Mutation {
 	
 	@Override
 	public void mutate(DNA dna) {
-		if (Math.random() < mutationRate) {
+		if (getRandomNumber() < mutationRate) {
 			int n = dna.getLength();
-			int k1 = (int) (Math.random() * n);
-			int k2 = k1 + rangeSize;
+			int k1 = (int) (getRandomNumber() * n);
+			int k2 = k1 + getRangeSize() - 1;
 			if (k2 >= dna.getLength()) {
-				k2 = dna.getLength()-1;
+				k2 = dna.getLength() - 1;
 			}
 			
 			double[] dnaCode = dna.getDNACode();
 			for (int i = k1; i <= k2; i++) {
-				dnaCode[i] = maxValue - dnaCode[i];
+				dnaCode[i] = getMaxValue() - dnaCode[i];
 			}
 		}
+	}
+	
+	@VisibleForTesting
+	/*private*/ double getRandomNumber() {
+		return Math.random();
+	}
+	
+	@VisibleForTesting
+	/*private*/ int getRangeSize() {
+		return rangeSize;
+	}
+	
+	@VisibleForTesting
+	/*private*/ double getMaxValue() {
+		return maxValue;
 	}
 }

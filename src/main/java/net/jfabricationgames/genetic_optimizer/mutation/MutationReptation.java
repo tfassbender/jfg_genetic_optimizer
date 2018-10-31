@@ -1,19 +1,20 @@
 package net.jfabricationgames.genetic_optimizer.mutation;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
 
 /**
- * Mutation by Reptation:
- * Take some code sequences from the start of the DNA-Code and put them at the end
+ * Mutation by Reptation: Take some code sequences from the start of the DNA-Code and put them at the end
  */
 public class MutationReptation implements Mutation {
 	
 	private double mutationRate;
-	private double reptationLengthMin;
-	private double reptationLengthMax;
+	private int reptationLengthMin;
+	private int reptationLengthMax;
 	private double frontToBackProbability;
 	
-	public MutationReptation(double mutationRate, double reptationLengthMin, double reptationLengthMax, double frontToBackProbability) {
+	public MutationReptation(double mutationRate, int reptationLengthMin, int reptationLengthMax, double frontToBackProbability) {
 		this.mutationRate = mutationRate;
 		this.reptationLengthMin = reptationLengthMin;
 		this.reptationLengthMax = reptationLengthMax;
@@ -22,24 +23,39 @@ public class MutationReptation implements Mutation {
 	
 	@Override
 	public void mutate(DNA dna) {
-		if (Math.random() < mutationRate) {
+		if (getRandomNumber() < mutationRate) {
 			int n = dna.getLength();
-			int k = (int) (Math.random() * (reptationLengthMax - reptationLengthMin) + reptationLengthMin);
+			int k = (int) (getRandomNumber() * (getReptationLengthMax() - getReptationLengthMin()) + getReptationLengthMin());
 			
 			double[] dnaCode = dna.getDNACode();
 			double[] tmp = new double[k];
-			if (Math.random() < frontToBackProbability) {
+			if (getRandomNumber() < frontToBackProbability) {
 				//move k DNA-Parts from the front of the DNA to the back
 				System.arraycopy(dnaCode, 0, tmp, 0, k);
-				System.arraycopy(dnaCode, k+1, dnaCode, 0, n-k);
-				System.arraycopy(tmp, 0, dnaCode, n-k, k);
+				System.arraycopy(dnaCode, k, dnaCode, 0, n - k);
+				System.arraycopy(tmp, 0, dnaCode, n - k, k);
 			}
 			else {
 				//move k DNA-Parts from the back of the DNA to the front
-				System.arraycopy(dnaCode, n-k, tmp, 0, k);
-				System.arraycopy(dnaCode, 0, dnaCode, k+1, n-k);
+				System.arraycopy(dnaCode, n - k, tmp, 0, k);
+				System.arraycopy(dnaCode, 0, dnaCode, k, n - k);
 				System.arraycopy(tmp, 0, dnaCode, 0, k);
 			}
 		}
+	}
+	
+	@VisibleForTesting
+	/*private*/ double getRandomNumber() {
+		return Math.random();
+	}
+	
+	@VisibleForTesting
+	/*private*/ int getReptationLengthMin() {
+		return reptationLengthMin;
+	}
+	
+	@VisibleForTesting
+	/*private*/ int getReptationLengthMax() {
+		return reptationLengthMax;
 	}
 }
