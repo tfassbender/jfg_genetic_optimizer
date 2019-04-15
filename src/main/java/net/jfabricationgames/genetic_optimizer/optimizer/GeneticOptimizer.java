@@ -3,10 +3,13 @@ package net.jfabricationgames.genetic_optimizer.optimizer;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import net.jfabricationgames.genetic_optimizer.abort_condition.AbortCondition;
+import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
 
@@ -19,7 +22,7 @@ public class GeneticOptimizer {
 	private Heredity heredity;
 	private List<Mutation> mutations;
 	private List<DNA> rootPopulation;
-	private int optimizationTime;
+	//private int optimizationTime; //replaced with abortCondition
 	private int populationSize;
 	
 	private int simulations;
@@ -40,6 +43,10 @@ public class GeneticOptimizer {
 	 * A random generator to generate better random DNAs that the default implementation.
 	 */
 	private InitialDNAGenerator dnaGenerator;
+	/**
+	 * The condition that has to be reached to stop the optimization.
+	 */
+	private AbortCondition abortCondition;
 	
 	private DNA bestDNA;
 	
@@ -65,7 +72,7 @@ public class GeneticOptimizer {
 		this.populationSize = rootPopulation.size();
 		this.heredity = heredity;
 		this.mutations = mutations;
-		this.optimizationTime = optimizationTime;
+		this.abortCondition = new TimedAbortCondition(optimizationTime);
 	}
 	/**
 	 * @param problem
@@ -89,11 +96,67 @@ public class GeneticOptimizer {
 		this.populationSize = populationSize;
 		this.heredity = heredity;
 		this.mutations = mutations;
-		this.optimizationTime = optimizationTime;
+		this.abortCondition = new TimedAbortCondition(optimizationTime);
+	}
+	/**
+	 * @param problem
+	 *        A wrapper implementation for the problem that calculates the fitness of a DNA.
+	 * 
+	 * @param populationSize
+	 *        The size of the population that should be used.
+	 * 
+	 * @param heredity
+	 *        The heredity for this optimization.
+	 * 
+	 * @param mutations
+	 *        A list of mutations for the optimization.
+	 * 
+	 * @param abortCondition
+	 *        The condition for the optimization to terminate.
+	 */
+	public GeneticOptimizer(Problem problem, int populationSize, Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition) {
+		this.problem = problem;
+		this.rootPopulation = Collections.emptyList();
+		this.populationSize = populationSize;
+		this.heredity = heredity;
+		this.mutations = mutations;
+		this.abortCondition = abortCondition;
+	}
+	/**
+	 * Used only for the builder pattern.
+	 */
+	protected GeneticOptimizer(Problem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation, Heredity heredity,
+			List<Mutation> mutations, AbortCondition abortCondition, double fathersFraction, boolean minimize)
+			throws IllegalArgumentException, NullPointerException {
+		Objects.requireNonNull(problem, "The problem mussn't be null.");
+		Objects.requireNonNull(heredity, "Heredity mussn't be null.");
+		Objects.requireNonNull(mutations, "Mutations mussn't be null. Use an empty list if you don't want any mutations.");
+		Objects.requireNonNull(abortCondition, "The abort condition mussn't be null.");
+		if (populationSize <= 0 && (rootPopulation == null || rootPopulation.isEmpty())) {
+			throw new IllegalArgumentException("Either a rootPopulation or a populationSize greater than 0 must be specified.");
+		}
+		
+		this.problem = problem;
+		this.rootPopulation = rootPopulation;
+		this.populationSize = populationSize;
+		this.dnaGenerator = dnaGenerator;
+		this.heredity = heredity;
+		this.mutations = mutations;
+		this.abortCondition = abortCondition;
+		this.fathersFraction = fathersFraction;
+		this.minimize = minimize;
+		
+		if (rootPopulation == null) {
+			rootPopulation = Collections.emptyList();
+		}
+		else if (populationSize <= 0) {
+			populationSize = rootPopulation.size();
+		}
 	}
 	
 	public void optimize() {
 		long start = System.nanoTime();
+		long timeUsed = 0;
 		
 		DNA[] population = new DNA[populationSize];
 		DNA[] childs = new DNA[populationSize];
@@ -111,7 +174,7 @@ public class GeneticOptimizer {
 		createInitialPopulation(population);
 		
 		simulations = 0;
-		while (TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start) < optimizationTime) {
+		while (!abortCondition.abort(bestDNA, timeUsed)) {
 			generateChilds(population, childs);
 			
 			chooseNextPopulation(population, childs, nextPopulation);
@@ -127,6 +190,7 @@ public class GeneticOptimizer {
 			}
 			
 			simulations++;
+			timeUsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 		}
 	}
 	
