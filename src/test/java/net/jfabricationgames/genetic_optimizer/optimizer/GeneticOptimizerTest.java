@@ -28,7 +28,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testOptimizeWithFitnessAsSumOfGenomes_shouldMinimizeTheBestDNAToFitnessOfZero() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(10);
 		//the other chromosomes are generated randomly (by DNA.generateRandomDNA(int, int))
 		DNA optimalPart1 = new DNA(problem.getLength());
@@ -68,8 +68,8 @@ class GeneticOptimizerTest {
 	@Test
 	public void testOptimizeUsingMaximizationProblem_shouldFindTheOptimalFitnessOfZero() {
 		//ARRANGE
-		Problem maximizationProblem = new Problem() {
-			private Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem maximizationProblem = new GeneticOptimizerProblem() {
+			private GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 			
 			@Override
 			public int getLength() {
@@ -119,7 +119,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testOptimizeUsingOnlyMutation_shouldFindAnOptimalSolution() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		InitialDNAGenerator generator = (size) -> {
 			DNA dna = new DNA(size);
@@ -176,7 +176,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testCreateInitialPopulationFromRootPopulation_shouldCreateAnInitialPopulationFromTheRootPopulation() {
 		//ARRANGE
-		Problem problem = generateProblemWithFixedFitness(42d);
+		GeneticOptimizerProblem problem = generateProblemWithFixedFitness(42d);
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		
@@ -209,7 +209,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testCreateSortedInitialPopulation_shouldCreateAnInitialPopulationFromTheRootPopulationAndSortItByItsFitness() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		
@@ -243,7 +243,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testCreateSortedInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulationAndSortItByItsFitness_highesFitnessFirst() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		
@@ -278,7 +278,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testCreateInitialPopulationWithGenerator() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(2, 5);//only two initial population chromosomes
 		
@@ -325,7 +325,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testCreateInitialPopulationWithDefaultGenerator_shouldGenerateRandomValuesForEveryGenomeInASpecifiedRange() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = new ArrayList<DNA>(0);//no initial population is given
 		
@@ -356,7 +356,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testGenerateChilds_verifiesTheCorrectMethodCalls() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		//use a Heredity that just return the father chromosome (because something needs to be returned)
@@ -391,7 +391,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testGenerateChildsUsesRightFatherChromosome() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		//set some values to the genomes of the initial population to make them sortable (using the sum of genomes as fitness)
@@ -438,7 +438,7 @@ class GeneticOptimizerTest {
 	@Test
 	public void testGenerateChilds_noHeredityOfSameChromosomes() {
 		//ARRANGE
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = generateInitialPopulation(2, 5);//small population for testing
 		//use a Heredity that throws an exception when the father and mother chromosomes are the same (using ==, not equals)
@@ -505,7 +505,7 @@ class GeneticOptimizerTest {
 	}
 	
 	private GeneticOptimizer generateDefaultGeneticOptimizer() {
-		Problem problem = generateProblemWithFitnessAsSumOfGenomes();
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
 		List<DNA> initialPopulation = Collections.emptyList();
 		Heredity heredity = mock(Heredity.class);
@@ -525,14 +525,14 @@ class GeneticOptimizerTest {
 		return initialPopulation;
 	}
 	
-	private Problem generateProblemWithFixedFitness(double fitness) {
-		Problem problem = mock(Problem.class);
+	private GeneticOptimizerProblem generateProblemWithFixedFitness(double fitness) {
+		GeneticOptimizerProblem problem = mock(GeneticOptimizerProblem.class);
 		when(problem.calculateFitness(any())).thenReturn(fitness);
 		return problem;
 	}
 	
-	private Problem generateProblemWithFitnessAsSumOfGenomes() {
-		Problem problem = mock(Problem.class);
+	private GeneticOptimizerProblem generateProblemWithFitnessAsSumOfGenomes() {
+		GeneticOptimizerProblem problem = mock(GeneticOptimizerProblem.class);
 		when(problem.calculateFitness(any(DNA.class))).thenAnswer(new Answer<Double>() {
 			
 			@Override

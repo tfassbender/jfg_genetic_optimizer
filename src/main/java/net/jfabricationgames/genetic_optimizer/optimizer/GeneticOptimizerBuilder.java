@@ -10,7 +10,7 @@ import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
 
 public class GeneticOptimizerBuilder {
 	
-	private Problem problem;
+	private GeneticOptimizerProblem problem;
 	private Heredity heredity;
 	private List<Mutation> mutations;
 	private List<DNA> rootPopulation;
@@ -47,10 +47,10 @@ public class GeneticOptimizerBuilder {
 		abortCondition = null;
 	}
 	
-	public Problem getProblem() {
+	public GeneticOptimizerProblem getProblem() {
 		return problem;
 	}
-	public GeneticOptimizerBuilder setProblem(Problem problem) {
+	public GeneticOptimizerBuilder setProblem(GeneticOptimizerProblem problem) {
 		this.problem = problem;
 		return this;
 	}

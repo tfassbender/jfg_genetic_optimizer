@@ -1,7 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.optimizer;
 
 
-public interface Problem {
+public interface GeneticOptimizerProblem {
 	
 	/**
 	 * The length of this problem to use as DNA length.

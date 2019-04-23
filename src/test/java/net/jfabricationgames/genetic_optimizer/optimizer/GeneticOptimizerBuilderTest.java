@@ -12,8 +12,8 @@ import net.jfabricationgames.genetic_optimizer.mutation.MutationScramble;
 
 class GeneticOptimizerBuilderTest {
 	
-	private Problem getDefaultProblem() {
-		Problem problem = new Problem() {
+	private GeneticOptimizerProblem getDefaultProblem() {
+		GeneticOptimizerProblem problem = new GeneticOptimizerProblem() {
 			
 			@Override
 			public int getLength() {
@@ -31,7 +31,7 @@ class GeneticOptimizerBuilderTest {
 	@Test
 	public void testBuilder() {
 		//fitness is always 42
-		Problem problem = getDefaultProblem();
+		GeneticOptimizerProblem problem = getDefaultProblem();
 		Heredity heredity = new HeredityRandom(0.5);
 		Mutation mutation = new MutationScramble(0.5, 2);
 		int populationSize = 3;

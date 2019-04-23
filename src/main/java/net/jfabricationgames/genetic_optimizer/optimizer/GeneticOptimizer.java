@@ -18,7 +18,7 @@ import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
  */
 public class GeneticOptimizer {
 	
-	private Problem problem;
+	private GeneticOptimizerProblem problem;
 	private Heredity heredity;
 	private List<Mutation> mutations;
 	private List<DNA> rootPopulation;
@@ -66,7 +66,7 @@ public class GeneticOptimizer {
 	 * @param optimizationTime
 	 *        The optimization time in milliseconds
 	 */
-	public GeneticOptimizer(Problem problem, List<DNA> rootPopulation, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
+	public GeneticOptimizer(GeneticOptimizerProblem problem, List<DNA> rootPopulation, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
 		this.problem = problem;
 		this.rootPopulation = rootPopulation;
 		this.populationSize = rootPopulation.size();
@@ -90,7 +90,7 @@ public class GeneticOptimizer {
 	 * @param optimizationTime
 	 *        The optimization time in milliseconds
 	 */
-	public GeneticOptimizer(Problem problem, int populationSize, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
+	public GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
 		this.problem = problem;
 		this.rootPopulation = Collections.emptyList();
 		this.populationSize = populationSize;
@@ -114,7 +114,7 @@ public class GeneticOptimizer {
 	 * @param abortCondition
 	 *        The condition for the optimization to terminate.
 	 */
-	public GeneticOptimizer(Problem problem, int populationSize, Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition) {
+	public GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition) {
 		this.problem = problem;
 		this.rootPopulation = Collections.emptyList();
 		this.populationSize = populationSize;
@@ -125,7 +125,7 @@ public class GeneticOptimizer {
 	/**
 	 * Used only for the builder pattern.
 	 */
-	protected GeneticOptimizer(Problem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation, Heredity heredity,
+	protected GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation, Heredity heredity,
 			List<Mutation> mutations, AbortCondition abortCondition, double fathersFraction, boolean minimize)
 			throws IllegalArgumentException, NullPointerException {
 		Objects.requireNonNull(problem, "The problem mussn't be null.");
@@ -345,7 +345,7 @@ public class GeneticOptimizer {
 		this.dnaGenerator = dnaGenerator;
 	}
 	
-	public Problem getProblem() {
+	public GeneticOptimizerProblem getProblem() {
 		return problem;
 	}
 	
