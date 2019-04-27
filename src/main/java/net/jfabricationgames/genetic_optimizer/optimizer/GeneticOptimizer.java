@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -248,10 +249,10 @@ public class GeneticOptimizer {
 		//create new childs
 		for (int i = 0; i < childs.length; i++) {
 			//choose one of the best DNAs as father
-			int fatherIndex = (int) (Math.random() * population.length * fathersFraction);
+			int fatherIndex = (int) (ThreadLocalRandom.current().nextDouble() * population.length * fathersFraction);
 			DNA father = population[fatherIndex];
 			//choose a mother DNA randomly
-			int motherIndex = (int) (Math.random() * population.length - 1);
+			int motherIndex = (int) (ThreadLocalRandom.current().nextDouble() * population.length - 1);
 			if (motherIndex >= fatherIndex) {
 				motherIndex++;
 			}

@@ -1,6 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.optimizer;
 
 import java.util.Arrays;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * A (non-optimal) solution for the given Problem modeled as DNA stream.
@@ -17,7 +18,7 @@ public class DNA implements Comparable<DNA> {
 	public static DNA generateRandomDNA(int length, double range) {
 		DNA random = new DNA(length);
 		for (int i = 0; i < length; i++) {
-			random.dnaCode[i] = Math.random() * range;
+			random.dnaCode[i] = ThreadLocalRandom.current().nextDouble() * range;
 		}
 		return random;
 	}

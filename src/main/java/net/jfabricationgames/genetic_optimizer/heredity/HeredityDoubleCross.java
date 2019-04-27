@@ -1,5 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.heredity;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import com.google.common.annotations.VisibleForTesting;
 
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
@@ -50,6 +52,6 @@ public class HeredityDoubleCross implements Heredity {
 	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
-		return Math.random();
+		return ThreadLocalRandom.current().nextDouble();
 	}
 }

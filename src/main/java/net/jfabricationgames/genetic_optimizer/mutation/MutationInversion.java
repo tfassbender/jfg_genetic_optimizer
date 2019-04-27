@@ -1,5 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.mutation;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import com.google.common.annotations.VisibleForTesting;
 
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
@@ -38,7 +40,7 @@ public class MutationInversion implements Mutation {
 	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
-		return Math.random();
+		return ThreadLocalRandom.current().nextDouble();
 	}
 	
 	@VisibleForTesting
