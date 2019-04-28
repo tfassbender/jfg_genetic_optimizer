@@ -14,6 +14,9 @@ public class DNA implements Comparable<DNA> {
 	public DNA(int length) {
 		this.dnaCode = new double[length];
 	}
+	public DNA(double[] dnaCode) {
+		this.dnaCode = dnaCode;
+	}
 	
 	public static DNA generateRandomDNA(int length, double range) {
 		DNA random = new DNA(length);
