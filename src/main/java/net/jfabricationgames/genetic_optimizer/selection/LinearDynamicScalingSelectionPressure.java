@@ -34,8 +34,8 @@ public class LinearDynamicScalingSelectionPressure implements SelectionPressure 
 	 *        The offset parameter.
 	 */
 	public LinearDynamicScalingSelectionPressure(double alpha, double beta) {
-		if (alpha == 0 && beta == 0) {
-			throw new IllegalArgumentException("Can't set both parameters alpha and beta to 0");
+		if (alpha <= 0) {
+			throw new IllegalArgumentException("The parameter alpha must be greater than 0.");
 		}
 		this.alpha = alpha;
 		this.beta = beta;
