@@ -10,14 +10,14 @@ import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
  * WARNING: The selection pressure won't work if there are fitness values included that are below the defaultFitness (or above when minimizing),
  * because that will lead to negative probabilities.
  */
-public class ProportionalSelectionPressure implements SelectionPressure {
+public class FitnessProportionalSelectionPressure implements SelectionPressure {
 	
 	private double defaultFitness;
 	
-	public ProportionalSelectionPressure() {
+	public FitnessProportionalSelectionPressure() {
 		this(0d);
 	}
-	public ProportionalSelectionPressure(double defaultFitness) {
+	public FitnessProportionalSelectionPressure(double defaultFitness) {
 		this.defaultFitness = defaultFitness;
 	}
 	

@@ -6,11 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import net.jfabricationgames.genetic_optimizer.optimizer.DNA;
 
-class ProportionalSelectionPressureTest {
+class FitnessProportionalSelectionPressureTest {
 	
 	@Test
 	public void testCalculateSelectionProbability_maximizeWithoutDefault() {
-		SelectionPressure selectionPressure = new ProportionalSelectionPressure();
+		SelectionPressure selectionPressure = new FitnessProportionalSelectionPressure();
 		
 		double[][] fitness = new double[][] {{0, 0, 1, 1, 0}, {1, 2, 3, 2, 2}, {1, 1, 1, 1}};
 		double[][] probabilities = new double[fitness.length][];
@@ -35,7 +35,7 @@ class ProportionalSelectionPressureTest {
 	
 	@Test
 	public void testCalculateSelectionProbability_maximizeWithDefault() {
-		SelectionPressure selectionPressure = new ProportionalSelectionPressure(3);
+		SelectionPressure selectionPressure = new FitnessProportionalSelectionPressure(3);
 		
 		double[][] fitness = new double[][] {{3, 3, 4, 4, 3}, {4, 5, 6, 5, 5}, {4, 4, 4, 4}};
 		double[][] probabilities = new double[fitness.length][];
@@ -60,7 +60,7 @@ class ProportionalSelectionPressureTest {
 	
 	@Test
 	public void testCalculateSelectionProbability_minimizeWithDefault() {
-		SelectionPressure selectionPressure = new ProportionalSelectionPressure(3);
+		SelectionPressure selectionPressure = new FitnessProportionalSelectionPressure(3);
 		
 		double[][] fitness = new double[][] {{3, 3, 2, 2, 3}, {2, 1, 0, 1, 1}, {2, 2, 2, 2}};
 		double[][] probabilities = new double[fitness.length][];
@@ -85,7 +85,7 @@ class ProportionalSelectionPressureTest {
 	
 	@Test
 	public void testCalculateSelectionProbability_minimizeWithoutDefault() {
-		SelectionPressure selectionPressure = new ProportionalSelectionPressure();
+		SelectionPressure selectionPressure = new FitnessProportionalSelectionPressure();
 		
 		double[][] fitness = new double[][] {{0, 0, -1, -1, 0}, {-1, -2, -3, -2, -2}, {-1, -1, -1, -1}};
 		double[][] probabilities = new double[fitness.length][];
