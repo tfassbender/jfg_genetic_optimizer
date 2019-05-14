@@ -1,6 +1,7 @@
 package net.jfabricationgames.genetic_optimizer.selection;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -106,5 +107,39 @@ class FitnessProportionalSelectionPressureTest {
 		for (int i = 0; i < probabilities.length; i++) {
 			assertArrayEquals(expectedProbabilities[i], probabilities[i], epsilon);
 		}
+	}
+	
+	@Test
+	public void testCalculateSelectionProbability_randomFitness() {
+		SelectionPressure selectionPressure = new FitnessProportionalSelectionPressure();
+		SelectionPressure selectionPressureOffset = new FitnessProportionalSelectionPressure(42);
+		
+		double[] fitness = new double[50];
+		for (int i = 0; i < fitness.length; i++) {
+			fitness[i] = Math.random() * 100;
+		}
+		
+		DNA[] population = new DNA[fitness.length];
+		for (int i = 0; i < population.length; i++) {
+			DNA dna = new DNA(0);
+			dna.setFitness(fitness[i]);
+			population[i] = dna;
+		}
+		
+		double[] probabilityNoOffset = selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1);
+		double[] probabilityOffset = selectionPressureOffset.calculateSelectionProbability(population, 0, true, 0, -1);
+		
+		double sumNoOffset = 0;
+		double sumOffset = 0;
+		
+		for (int i = 0; i < probabilityOffset.length; i++) {
+			sumNoOffset += probabilityNoOffset[i];
+			sumOffset += probabilityOffset[i];
+		}
+		
+		//the summed probability has to be 1
+		double epsilon = 1e-5;
+		assertEquals(1d, sumNoOffset, epsilon);
+		assertEquals(1d, sumOffset, epsilon);
 	}
 }
