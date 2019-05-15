@@ -24,7 +24,7 @@ class SigmaScalingSelectionPressureTest {
 		double epsilon = 1e-5;
 		double div = 5 * Math.sqrt(10);
 		assertArrayEquals(new double[] {(Math.sqrt(10) - 2) / div, (Math.sqrt(10) - 1) / div, Math.sqrt(10) / div, (Math.sqrt(10) + 1) / div,
-				(Math.sqrt(10) + 2) / div}, selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1), epsilon);
+				(Math.sqrt(10) + 2) / div}, selectionPressure.calculateSelectionProbability(population, 0, false, 0), epsilon);
 	}
 	
 	@Test
@@ -43,7 +43,7 @@ class SigmaScalingSelectionPressureTest {
 		double epsilon = 1e-5;
 		double div = 5 * Math.sqrt(10);
 		assertArrayEquals(new double[] {(Math.sqrt(10) + 2) / div, (Math.sqrt(10) + 1) / div, Math.sqrt(10) / div, (Math.sqrt(10) - 1) / div,
-				(Math.sqrt(10) - 2) / div}, selectionPressure.calculateSelectionProbability(population, 0, true, 0, -1), epsilon);
+				(Math.sqrt(10) - 2) / div}, selectionPressure.calculateSelectionProbability(population, 0, true, 0), epsilon);
 	}
 	
 	@Test
@@ -63,12 +63,12 @@ class SigmaScalingSelectionPressureTest {
 		double div = 10 * Math.sqrt(10);
 		assertArrayEquals(new double[] {(2 * Math.sqrt(10) - 2) / div, (2 * Math.sqrt(10) - 1) / div, 2 * Math.sqrt(10) / div,
 				(2 * Math.sqrt(10) + 1) / div, (2 * Math.sqrt(10) + 2) / div},
-				selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1), epsilon);
+				selectionPressure.calculateSelectionProbability(population, 0, false, 0), epsilon);
 	}
 	
 	@Test
 	public void testCalculateSelectionProbability_beta0() {
-		SelectionPressure selectionPressure = new SigmaScalingSelectionPressure((gen, tUsed, tTotal) -> 0d);
+		SelectionPressure selectionPressure = new SigmaScalingSelectionPressure((gen, tUsed) -> 0d);
 		
 		double[] fitness = new double[] {0, 1, 2, 3, 4};//mu = 2, sigma = sqrt(10)
 		
@@ -81,13 +81,13 @@ class SigmaScalingSelectionPressureTest {
 		
 		double epsilon = 1e-5;
 		double div = 3d;
-		assertArrayEquals(new double[] {0, 0, 0, 1d / div, 2d / div}, selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1),
+		assertArrayEquals(new double[] {0, 0, 0, 1d / div, 2d / div}, selectionPressure.calculateSelectionProbability(population, 0, false, 0),
 				epsilon);
 	}
 	
 	@Test
 	public void testCalculateSelectionProbability_betaFunction() {
-		SelectionPressure selectionPressure = new SigmaScalingSelectionPressure((gen, tUsed, tTotal) -> gen);
+		SelectionPressure selectionPressure = new SigmaScalingSelectionPressure((gen, tUsed) -> gen);
 		
 		double[] fitness = new double[] {0, 1, 2, 3, 4};//mu = 2, sigma = sqrt(10)
 		
@@ -100,19 +100,19 @@ class SigmaScalingSelectionPressureTest {
 		
 		double epsilon = 1e-5;
 		double div = 3d;
-		assertArrayEquals(new double[] {0, 0, 0, 1d / div, 2d / div}, selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1),
+		assertArrayEquals(new double[] {0, 0, 0, 1d / div, 2d / div}, selectionPressure.calculateSelectionProbability(population, 0, false, 0),
 				epsilon);
 		
 		div = 5 * Math.sqrt(10);
 		assertArrayEquals(new double[] {(Math.sqrt(10) - 2) / div, (Math.sqrt(10) - 1) / div, Math.sqrt(10) / div, (Math.sqrt(10) + 1) / div,
-				(Math.sqrt(10) + 2) / div}, selectionPressure.calculateSelectionProbability(population, 1, false, 0, -1), epsilon);
+				(Math.sqrt(10) + 2) / div}, selectionPressure.calculateSelectionProbability(population, 1, false, 0), epsilon);
 	}
 	
 	@Test
 	public void testCalculateSelectionProbability_randomFitness() {
 		SelectionPressure selectionPressureDefault = new SigmaScalingSelectionPressure();
 		SelectionPressure selectionPressureBeta42 = new SigmaScalingSelectionPressure(42);
-		SelectionPressure selectionPressureFunction = new SigmaScalingSelectionPressure((gen, tUsed, tTotal) -> 2 * gen + 3);
+		SelectionPressure selectionPressureFunction = new SigmaScalingSelectionPressure((gen, tUsed) -> 2 * gen + 3);
 		
 		double[] fitness = new double[50];
 		for (int i = 0; i < fitness.length; i++) {
@@ -126,9 +126,9 @@ class SigmaScalingSelectionPressureTest {
 			population[i] = dna;
 		}
 		
-		double[] probabilityDefault = selectionPressureDefault.calculateSelectionProbability(population, 0, false, 0, -1);
-		double[] probabilityBeta42 = selectionPressureBeta42.calculateSelectionProbability(population, 0, true, 0, -1);
-		double[] probabilityFunction = selectionPressureFunction.calculateSelectionProbability(population, 5, false, 0, -1);
+		double[] probabilityDefault = selectionPressureDefault.calculateSelectionProbability(population, 0, false, 0);
+		double[] probabilityBeta42 = selectionPressureBeta42.calculateSelectionProbability(population, 0, true, 0);
+		double[] probabilityFunction = selectionPressureFunction.calculateSelectionProbability(population, 5, false, 0);
 		
 		double sumDefault = 0;
 		double sumBeta42 = 0;

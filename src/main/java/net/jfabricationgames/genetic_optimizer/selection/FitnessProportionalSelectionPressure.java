@@ -22,7 +22,7 @@ public class FitnessProportionalSelectionPressure implements SelectionPressure {
 	}
 	
 	@Override
-	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed, long totalTime) {
+	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed) {
 		double[] probabilities = new double[population.length];
 		
 		//add the absolute fitness values of each individual to the probabilities array

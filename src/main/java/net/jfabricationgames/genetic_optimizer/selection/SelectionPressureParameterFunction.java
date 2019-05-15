@@ -6,5 +6,5 @@ package net.jfabricationgames.genetic_optimizer.selection;
 @FunctionalInterface
 public interface SelectionPressureParameterFunction {
 	
-	public double getParameterValue(int generation, long timeUsed, long totalTime);
+	public double getParameterValue(int generation, long timeUsed);
 }

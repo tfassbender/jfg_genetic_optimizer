@@ -25,7 +25,7 @@ class FitnessProportionalSelectionPressureTest {
 				population[j] = dna;
 			}
 			
-			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1);
+			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0);
 		}
 		
 		double epsilon = 1e-5;
@@ -50,7 +50,7 @@ class FitnessProportionalSelectionPressureTest {
 				population[j] = dna;
 			}
 			
-			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1);
+			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0);
 		}
 		
 		double epsilon = 1e-5;
@@ -75,7 +75,7 @@ class FitnessProportionalSelectionPressureTest {
 				population[j] = dna;
 			}
 			
-			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1);
+			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0);
 		}
 		
 		double epsilon = 1e-5;
@@ -100,7 +100,7 @@ class FitnessProportionalSelectionPressureTest {
 				population[j] = dna;
 			}
 			
-			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1);
+			probabilities[i] = selectionPressure.calculateSelectionProbability(population, 0, false, 0);
 		}
 		
 		double epsilon = 1e-5;
@@ -126,8 +126,8 @@ class FitnessProportionalSelectionPressureTest {
 			population[i] = dna;
 		}
 		
-		double[] probabilityNoOffset = selectionPressure.calculateSelectionProbability(population, 0, false, 0, -1);
-		double[] probabilityOffset = selectionPressureOffset.calculateSelectionProbability(population, 0, true, 0, -1);
+		double[] probabilityNoOffset = selectionPressure.calculateSelectionProbability(population, 0, false, 0);
+		double[] probabilityOffset = selectionPressureOffset.calculateSelectionProbability(population, 0, true, 0);
 		
 		double sumNoOffset = 0;
 		double sumOffset = 0;

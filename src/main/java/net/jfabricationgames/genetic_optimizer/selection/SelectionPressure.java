@@ -26,10 +26,7 @@ public interface SelectionPressure {
 	 * @param timeUsed
 	 *        The time that was used since the optimization was started.
 	 * 
-	 * @param totalTime
-	 *        The total time that can be used for the optimization (if there is no maximum time the parameter is -1).
-	 * 
 	 * @return A double-array (of size [population.length]) including the probabilities of every individual to be selected (that sums up to 1).
 	 */
-	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed, long totalTime);
+	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed);
 }

@@ -59,12 +59,12 @@ public class LinearDynamicScalingSelectionPressure implements SelectionPressure 
 	}
 	
 	@Override
-	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed, long totalTime) {
+	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed) {
 		double[] probabilities = new double[population.length];
 		
 		if (alphaFunction != null) {
-			alpha = alphaFunction.getParameterValue(generation, timeUsed, totalTime);
-			beta = betaFunction.getParameterValue(generation, timeUsed, totalTime);
+			alpha = alphaFunction.getParameterValue(generation, timeUsed);
+			beta = betaFunction.getParameterValue(generation, timeUsed);
 		}
 		
 		//copy the fitness values to the probabilities array and find the minimum

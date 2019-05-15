@@ -44,11 +44,11 @@ public class SigmaScalingSelectionPressure implements SelectionPressure {
 	}
 	
 	@Override
-	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed, long totalTime) {
+	public double[] calculateSelectionProbability(DNA[] population, int generation, boolean minimize, long timeUsed) {
 		double[] probabilities = new double[population.length];
 		
 		if (betaFunction != null) {
-			beta = betaFunction.getParameterValue(generation, timeUsed, totalTime);
+			beta = betaFunction.getParameterValue(generation, timeUsed);
 		}
 		
 		//copy the fitness values to the probabilities array and find the expected value mu
