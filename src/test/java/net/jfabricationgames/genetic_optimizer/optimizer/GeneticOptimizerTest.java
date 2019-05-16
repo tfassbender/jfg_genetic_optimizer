@@ -470,7 +470,31 @@ class GeneticOptimizerTest {
 	
 	@Test
 	public void testGenerateNextPopulation() {
-		fail("not yet implemented");
+		int populationSize = 5;
+		int dnaLength = 5;
+		
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(0).setPopulationSize(populationSize);
+		GeneticOptimizer optimizer = builder.build();
+		
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
+		
+		for (int i = 0; i < population.length; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+		}
+		
+		int[] selectedReproductionIndividuals = new int[] {0, 1, 0, 2, 0, 0, 1, 2, 4, 3};
+		DNA[] expectedNextPopulation = new DNA[] {population[0], population[0], population[0], population[1], population[4]};
+		
+		optimizer.generateNextPopulation(selectedReproductionIndividuals, population, nextPopulation);
+		
+		assertArrayEquals(expectedNextPopulation, nextPopulation);
 	}
 	
 	@Test
@@ -494,20 +518,51 @@ class GeneticOptimizerTest {
 		localElitismOptimizer.addIndividual(father, mother, child, population, 2);
 		child.setFitness(44);
 		localElitismOptimizer.addIndividual(father, mother, child, population, 3);
-
+		
 		assertArrayEquals(new DNA[] {child, mother, father, child}, population);
 	}
 	
 	@Test
 	public void testAddElites() {
-		fail("not yet implemented");
+		int populationSize = 5;
+		int dnaLength = 5;
+		int elites = 1;
+		
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(elites).setPopulationSize(populationSize).setMinimize(true);
+		GeneticOptimizer optimizer = builder.build();
+		
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
+		
+		for (int i = 0; i < population.length - 1; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+		}
+		population[populationSize - 1] = new DNA(new double[] {0, 0, 0, 0, 0});//optimal solution
+		
+		//calculate the fitness of the population
+		for (int i = 0; i < population.length; i++) {
+			population[i].setFitness(optimizer.getProblem().calculateFitness(population[i]));
+		}
+		
+		//only the elites are added
+		DNA[] expectedNextPopulation = new DNA[] {null, null, null, null, population[4]};
+		
+		optimizer.addElites(population, nextPopulation);
+		
+		assertArrayEquals(expectedNextPopulation, nextPopulation);
 	}
 	
 	private GeneticOptimizerBuilder generateDefaultBuilder() {
 		GeneticOptimizerBuilder builder = new GeneticOptimizerBuilder();
-		builder.setProblem(generateProblemWithFitnessAsSumOfGenomes())
-				.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0))
-				.setAbortCondition(new TimedAbortCondition(100)).setRootPopulation(generateInitialPopulation(5, 5));
+		builder.setProblem(generateProblemWithFitnessAsSumOfGenomes()).setHeredity(generateHeredityThatReturnsFatherCromosome())
+				.setMutations(new ArrayList<Mutation>(0)).setAbortCondition(new TimedAbortCondition(100))
+				.setRootPopulation(generateInitialPopulation(5, 5));
 		
 		return builder;
 	}

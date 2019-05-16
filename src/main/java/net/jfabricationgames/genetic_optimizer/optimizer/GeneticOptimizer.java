@@ -13,7 +13,6 @@ import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortConditi
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
 import net.jfabricationgames.genetic_optimizer.selection.EquallyDistributedSelectionPressure;
-import net.jfabricationgames.genetic_optimizer.selection.FitnessProportionalSelectionPressure;
 import net.jfabricationgames.genetic_optimizer.selection.SelectionPressure;
 import net.jfabricationgames.genetic_optimizer.selection.Selector;
 import net.jfabricationgames.genetic_optimizer.selection.StochasticallyDistributedSelector;
