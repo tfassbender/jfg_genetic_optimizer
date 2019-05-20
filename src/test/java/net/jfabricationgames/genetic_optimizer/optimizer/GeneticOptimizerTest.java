@@ -155,27 +155,6 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testReverseDNA_shouldRevertTheArrayContent() {
-		DNA dna1 = new DNA(5);
-		DNA dna2 = new DNA(5);
-		DNA dna3 = new DNA(5);
-		DNA dna4 = new DNA(5);
-		DNA dna5 = new DNA(5);
-		
-		DNA[] populationEven = new DNA[] {dna1, dna2, dna3, dna4};
-		DNA[] populationOdd = new DNA[] {dna1, dna2, dna3, dna4, dna5};
-		
-		DNA[] populationEvenReversed = new DNA[] {dna4, dna3, dna2, dna1};
-		DNA[] populationOddReversed = new DNA[] {dna5, dna4, dna3, dna2, dna1};
-		
-		GeneticOptimizer.reverse(populationEven);
-		GeneticOptimizer.reverse(populationOdd);
-		
-		assertArrayEquals(populationEvenReversed, populationEven);
-		assertArrayEquals(populationOddReversed, populationOdd);
-	}
-	
-	@Test
 	public void testCreateInitialPopulationFromRootPopulation_shouldCreateAnInitialPopulationFromTheRootPopulation() {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFixedFitness(42d);
@@ -243,7 +222,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateSortedInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulationAndSortItByItsFitness_highesFitnessFirst() {
+	public void testCreateInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulation() {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -269,12 +248,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
-		//the DNA with the lowest fitness is the first in the population because the optimizer minimizes by default
-		assertEquals(46d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(45d, population[1].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
+		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
 		assertEquals(44d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(45d, population[3].getDNACode()[0], 1e-8);
+		assertEquals(46d, population[4].getDNACode()[0], 1e-8);
 	}
 	
 	@Test
@@ -316,12 +294,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the two initial populations and three generated chromsomes
-		//the DNA with the lowest fitness is the first in the population because the optimizer minimizes by default
-		assertEquals(3d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(3d, population[1].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
+		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
 		assertEquals(3d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(3d, population[3].getDNACode()[0], 1e-8);
+		assertEquals(3d, population[4].getDNACode()[0], 1e-8);
 	}
 	
 	@Test

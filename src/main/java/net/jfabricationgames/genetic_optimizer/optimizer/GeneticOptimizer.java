@@ -1,6 +1,5 @@
 package net.jfabricationgames.genetic_optimizer.optimizer;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -142,6 +141,46 @@ public class GeneticOptimizer {
 	}
 	/**
 	 * Used only for the builder pattern.
+	 * 
+	 * @param problem
+	 *        A wrapper implementation for the problem that calculates the fitness of a DNA.
+	 * 
+	 * @param populationSize
+	 *        The size of the population that is generated, selected, mutated, ...
+	 * 
+	 * @param dnaGenerator
+	 *        A generator for the initial DNA (if no root population is used).
+	 * 
+	 * @param rootPopulation
+	 *        The root population that is used to start the optimization.
+	 * 
+	 * @param heredity
+	 *        The heredity method that is used to combine two individuals to a new individual.
+	 * 
+	 * @param mutations
+	 *        The mutations that are used to change the new individuals that are created using the heredity (all mutations are applied).
+	 * 
+	 * @param abortCondition
+	 *        The condition to let the algorithm terminate (usually after some time or when a fitness threshold is reached).
+	 * 
+	 * @param selectionPressure
+	 *        A selection pressure to calculate the probability to be selected for reproduction based on the fitness.
+	 * 
+	 * @param selector
+	 *        The selector that selects the individuals for reproduction (usually based on the probabilities that were calculated by the
+	 *        selectionPressure).
+	 * 
+	 * @param fathersFraction
+	 *        A deprecated variable that isn't really used. Just for the backwards compatibility.
+	 * 
+	 * @param minimize
+	 *        Determines whether the fitness of the individuals should be minimized (true) or maximized (false).
+	 * 
+	 * @param useLocalElitism
+	 *        Determines whether local elitism should be used.
+	 * 
+	 * @param elites
+	 *        The number of elite individuals that are copied from the last population to the new one to prevent loosing the best individuals.
 	 */
 	protected GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation,
 			Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition, SelectionPressure selectionPressure, Selector selector,
@@ -152,6 +191,9 @@ public class GeneticOptimizer {
 		Objects.requireNonNull(abortCondition, "The abort condition mussn't be null.");
 		if (populationSize <= 0 && (rootPopulation == null || rootPopulation.isEmpty())) {
 			throw new IllegalArgumentException("Either a rootPopulation or a populationSize greater than 0 must be specified.");
+		}
+		if (elites >= populationSize && populationSize > 0) {
+			throw new IllegalArgumentException("Can't use only elites in a population (or more elites than the population size).");
 		}
 		
 		this.problem = problem;
@@ -197,9 +239,6 @@ public class GeneticOptimizer {
 		
 		generation = 0;
 		while (!abortCondition.abort(bestDNA, timeUsed)) {
-			//generateChilds(population, childs);
-			//chooseNextPopulation(population, childs, nextPopulation);
-			
 			//calculate the chance of each individual to be selected for reproduction
 			double[] reproductionProbabilities = selectionPressure.calculateSelectionProbability(population, generation, minimize, timeUsed);
 			//choose the individuals that are selected for reproduction
@@ -234,16 +273,6 @@ public class GeneticOptimizer {
 	}
 	
 	@VisibleForTesting
-	/*private*/ static void reverse(DNA[] dnas) {
-		int len = dnas.length;
-		for (int i = 0; i < len / 2; i++) {
-			DNA temp = dnas[i];
-			dnas[i] = dnas[len - i - 1];
-			dnas[len - i - 1] = temp;
-		}
-	}
-	
-	@VisibleForTesting
 	/*private*/ void createInitialPopulation(DNA[] population) {
 		//create the initial population by the rootPopulation or generate a random population
 		for (int i = 0; i < population.length; i++) {
@@ -265,11 +294,6 @@ public class GeneticOptimizer {
 			if (isBestDNA(dna)) {
 				dna.copyTo(bestDNA);
 			}
-		}
-		//sort the initial population
-		Arrays.sort(population);
-		if (!minimize) {
-			reverse(population);
 		}
 	}
 	
