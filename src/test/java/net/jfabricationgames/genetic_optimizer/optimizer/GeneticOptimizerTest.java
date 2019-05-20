@@ -20,6 +20,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
 
@@ -69,6 +70,7 @@ class GeneticOptimizerTest {
 	public void testOptimizeUsingMaximizationProblem_shouldFindTheOptimalFitnessOfZero() {
 		//ARRANGE
 		GeneticOptimizerProblem maximizationProblem = new GeneticOptimizerProblem() {
+			
 			private GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 			
 			@Override
@@ -107,6 +109,7 @@ class GeneticOptimizerTest {
 		GeneticOptimizer optimizer = new GeneticOptimizer(maximizationProblem, 5, heredity, mutations, time);
 		optimizer.setDnaGenerator(generator);
 		optimizer.setMinimize(false);
+		optimizer.setElites(2);
 		
 		//ACT
 		optimizer.optimize();
@@ -148,29 +151,7 @@ class GeneticOptimizerTest {
 		optimizer.optimize();
 		
 		//ASSERT
-		assertEquals(0, optimizer.getBestDNA().getFitness(), 1e-8,
-				"The optimal fitness of 0 should be found by the mutations");
-	}
-	
-	@Test
-	public void testReverseDNA_shouldRevertTheArrayContent() {
-		DNA dna1 = new DNA(5);
-		DNA dna2 = new DNA(5);
-		DNA dna3 = new DNA(5);
-		DNA dna4 = new DNA(5);
-		DNA dna5 = new DNA(5);
-		
-		DNA[] populationEven = new DNA[] {dna1, dna2, dna3, dna4};
-		DNA[] populationOdd = new DNA[] {dna1, dna2, dna3, dna4, dna5};
-		
-		DNA[] populationEvenReversed = new DNA[] {dna4, dna3, dna2, dna1};
-		DNA[] populationOddReversed = new DNA[] {dna5, dna4, dna3, dna2, dna1};
-		
-		GeneticOptimizer.reverse(populationEven);
-		GeneticOptimizer.reverse(populationOdd);
-		
-		assertArrayEquals(populationEvenReversed, populationEven);
-		assertArrayEquals(populationOddReversed, populationOdd);
+		assertEquals(0, optimizer.getBestDNA().getFitness(), 1e-8, "The optimal fitness of 0 should be found by the mutations");
 	}
 	
 	@Test
@@ -241,7 +222,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateSortedInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulationAndSortItByItsFitness_highesFitnessFirst() {
+	public void testCreateInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulation() {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -267,12 +248,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
-		//the DNA with the lowest fitness is the first in the population because the optimizer minimizes by default
-		assertEquals(46d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(45d, population[1].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
+		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
 		assertEquals(44d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(45d, population[3].getDNACode()[0], 1e-8);
+		assertEquals(46d, population[4].getDNACode()[0], 1e-8);
 	}
 	
 	@Test
@@ -314,12 +294,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the two initial populations and three generated chromsomes
-		//the DNA with the lowest fitness is the first in the population because the optimizer minimizes by default
-		assertEquals(3d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(3d, population[1].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
+		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
 		assertEquals(3d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(3d, population[3].getDNACode()[0], 1e-8);
+		assertEquals(3d, population[4].getDNACode()[0], 1e-8);
 	}
 	
 	@Test
@@ -354,7 +333,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testGenerateChilds_verifiesTheCorrectMethodCalls() {
+	public void testGenerateNextPopulation_verifiesTheCorrectMethodCalls() {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -374,10 +353,10 @@ class GeneticOptimizerTest {
 		optimizer.createInitialPopulation(population);
 		
 		//the space for the generated childs (bigger than the population to test the correct number of generated childs, and method calls)
-		DNA[] childs = new DNA[7];
+		DNA[] childs = new DNA[5];
 		
 		//ACT
-		optimizer.generateChilds(population, childs);
+		optimizer.generateNextPopulation(new int[10], population, childs);
 		
 		//ASSERT
 		//mixDNA is called for every chromosome in the childs array
@@ -389,7 +368,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testGenerateChildsUsesRightFatherChromosome() {
+	public void testGenerateNextPopulationUsesRightFatherChromosome() {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -413,10 +392,10 @@ class GeneticOptimizerTest {
 		optimizer.createInitialPopulation(population);
 		
 		//the space for the generated childs (bigger than the population to test the correct number of generated childs, and method calls)
-		DNA[] childs = new DNA[7];
+		DNA[] childs = new DNA[5];
 		
 		//ACT
-		optimizer.generateChilds(population, childs);
+		optimizer.generateNextPopulation(new int[10], population, childs);
 		
 		//ASSERT
 		//the heredity always returns the father and the mutation does nothing -> the father chromosome is always the same and the childs are all the father chromosome
@@ -457,10 +436,8 @@ class GeneticOptimizerTest {
 		
 		//ACT, ASSERT
 		try {
-			for (int i = 0; i < 100; i++) {
-				//the test will fail with an IllegalStateException when the same chromosomes are used for father and mother
-				optimizer.generateChilds(population, childs);
-			}
+			//the test will fail with an IllegalStateException when the same chromosomes are used for father and mother
+			optimizer.generateNextPopulation(new int[] {0, 1, 0, 1}, population, childs);
 		}
 		catch (IllegalStateException ise) {
 			fail("The generateChilds method should not have thrown an IllegalStateException.");
@@ -469,52 +446,102 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testChooseNextPopulation() {
-		//ARRANGE
-		GeneticOptimizer optimizer = generateDefaultGeneticOptimizer();
+	public void testGenerateNextPopulation() {
+		int populationSize = 5;
+		int dnaLength = 5;
 		
-		DNA[] population = new DNA[] {new DNA(5), new DNA(5), new DNA(5)};
-		DNA[] childs = new DNA[] {new DNA(5), new DNA(5), new DNA(5)};
-		DNA[] nextPopulation = new DNA[3];
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(0).setPopulationSize(populationSize);
+		GeneticOptimizer optimizer = builder.build();
 		
-		population[0].setFitness(42);
-		population[1].setFitness(45);
-		population[2].setFitness(46);
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
 		
-		childs[0].setFitness(41);
-		childs[1].setFitness(43);
-		childs[2].setFitness(50);
+		for (int i = 0; i < population.length; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+		}
 		
-		optimizer.chooseNextPopulation(population, childs, nextPopulation);
+		int[] selectedReproductionIndividuals = new int[] {0, 1, 0, 2, 0, 0, 1, 2, 4, 3};
+		DNA[] expectedNextPopulation = new DNA[] {population[0], population[0], population[0], population[1], population[4]};
 		
-		DNA[] expectedNextPopulation = new DNA[] {childs[0], population[0], childs[1]};
+		optimizer.generateNextPopulation(selectedReproductionIndividuals, population, nextPopulation);
+		
 		assertArrayEquals(expectedNextPopulation, nextPopulation);
 	}
 	
 	@Test
-	public void testChooseNextPopulationWithToBigArrayForNextPopulation_shouldThrowAnIndexOutOfBoundsException() {
-		//ARRANGE
-		GeneticOptimizer optimizer = generateDefaultGeneticOptimizer();
+	public void testAddIndividual() {
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		GeneticOptimizer optimizer = builder.build();
+		GeneticOptimizer localElitismOptimizer = builder.setUseLocalElitism(true).build();
 		
-		DNA[] population = new DNA[] {new DNA(5), new DNA(5), new DNA(5)};
-		DNA[] childs = new DNA[] {new DNA(5), new DNA(5), new DNA(5)};
-		DNA[] nextPopulation = new DNA[10];//the next population has more elements than population and childs combined
+		DNA[] population = new DNA[4];
 		
-		//ACT, ASSERT
-		assertThrows(ArrayIndexOutOfBoundsException.class, () -> optimizer.chooseNextPopulation(population, childs, nextPopulation));
+		DNA father = new DNA(0);
+		DNA mother = new DNA(0);
+		DNA child = new DNA(0);
+		father.setFitness(10);
+		mother.setFitness(42);
+		child.setFitness(5);
+		
+		optimizer.addIndividual(father, mother, child, population, 0);
+		localElitismOptimizer.addIndividual(father, mother, child, population, 1);
+		father.setFitness(43);
+		localElitismOptimizer.addIndividual(father, mother, child, population, 2);
+		child.setFitness(44);
+		localElitismOptimizer.addIndividual(father, mother, child, population, 3);
+		
+		assertArrayEquals(new DNA[] {child, mother, father, child}, population);
 	}
 	
-	private GeneticOptimizer generateDefaultGeneticOptimizer() {
-		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
-		when(problem.getLength()).thenReturn(5);
-		List<DNA> initialPopulation = Collections.emptyList();
-		Heredity heredity = mock(Heredity.class);
-		List<Mutation> mutations = Collections.emptyList();
-		int time = 1000;
+	@Test
+	public void testAddElites() {
+		int populationSize = 5;
+		int dnaLength = 5;
+		int elites = 1;
 		
-		GeneticOptimizer optimizer = new GeneticOptimizer(problem, initialPopulation, heredity, mutations, time);
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(elites).setPopulationSize(populationSize).setMinimize(true);
+		GeneticOptimizer optimizer = builder.build();
 		
-		return optimizer;
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
+		
+		for (int i = 0; i < population.length - 1; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+		}
+		population[populationSize - 1] = new DNA(new double[] {0, 0, 0, 0, 0});//optimal solution
+		
+		//calculate the fitness of the population
+		for (int i = 0; i < population.length; i++) {
+			population[i].setFitness(optimizer.getProblem().calculateFitness(population[i]));
+		}
+		
+		//only the elites are added
+		DNA[] expectedNextPopulation = new DNA[] {null, null, null, null, population[4]};
+		
+		optimizer.addElites(population, nextPopulation);
+		
+		assertArrayEquals(expectedNextPopulation, nextPopulation);
+	}
+	
+	private GeneticOptimizerBuilder generateDefaultBuilder() {
+		GeneticOptimizerBuilder builder = new GeneticOptimizerBuilder();
+		builder.setProblem(generateProblemWithFitnessAsSumOfGenomes()).setHeredity(generateHeredityThatReturnsFatherCromosome())
+				.setMutations(new ArrayList<Mutation>(0)).setAbortCondition(new TimedAbortCondition(100))
+				.setRootPopulation(generateInitialPopulation(5, 5));
+		
+		return builder;
 	}
 	
 	private List<DNA> generateInitialPopulation(int populationSize, int dnaSize) {

@@ -1,10 +1,8 @@
 package net.jfabricationgames.genetic_optimizer.optimizer;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -13,6 +11,10 @@ import net.jfabricationgames.genetic_optimizer.abort_condition.AbortCondition;
 import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
+import net.jfabricationgames.genetic_optimizer.selection.EquallyDistributedSelectionPressure;
+import net.jfabricationgames.genetic_optimizer.selection.SelectionPressure;
+import net.jfabricationgames.genetic_optimizer.selection.Selector;
+import net.jfabricationgames.genetic_optimizer.selection.StochasticallyDistributedSelector;
 
 /**
  * Solve an optimization problem using a genetic search algorithm.
@@ -21,12 +23,17 @@ public class GeneticOptimizer {
 	
 	private GeneticOptimizerProblem problem;
 	private Heredity heredity;
+	private Selector selector;
+	private SelectionPressure selectionPressure;
 	private List<Mutation> mutations;
 	private List<DNA> rootPopulation;
 	//private int optimizationTime; //replaced with abortCondition
 	private int populationSize;
+	private boolean useLocalElitism;//local elitism to choose the best individual when reproducing
+	private int elites;//global used elites to not loose the best individuals (regardless of generation)
 	
-	private int simulations;
+	//private int simulations;
+	private int generation;
 	
 	/**
 	 * Indicates whether the problem is a minimization (default) or maximization problem
@@ -35,6 +42,7 @@ public class GeneticOptimizer {
 	/**
 	 * A coefficient that tells which part of the population can be chosen as father (e.g. 0.1 would be the best 10% of the population)
 	 */
+	@Deprecated
 	private double fathersFraction = 0.15;
 	/**
 	 * The range a DNA has when randomly initialized {@see DNA.generateRandomDNA(int lenght, double range)}.
@@ -67,13 +75,17 @@ public class GeneticOptimizer {
 	 * @param optimizationTime
 	 *        The optimization time in milliseconds
 	 */
-	public GeneticOptimizer(GeneticOptimizerProblem problem, List<DNA> rootPopulation, Heredity heredity, List<Mutation> mutations, int optimizationTime) {
+	public GeneticOptimizer(GeneticOptimizerProblem problem, List<DNA> rootPopulation, Heredity heredity, List<Mutation> mutations,
+			int optimizationTime) {
 		this.problem = problem;
 		this.rootPopulation = rootPopulation;
 		this.populationSize = rootPopulation.size();
 		this.heredity = heredity;
 		this.mutations = mutations;
 		this.abortCondition = new TimedAbortCondition(optimizationTime);
+		
+		selectionPressure = new EquallyDistributedSelectionPressure();
+		selector = new StochasticallyDistributedSelector();
 	}
 	/**
 	 * @param problem
@@ -98,6 +110,9 @@ public class GeneticOptimizer {
 		this.heredity = heredity;
 		this.mutations = mutations;
 		this.abortCondition = new TimedAbortCondition(optimizationTime);
+		
+		selectionPressure = new EquallyDistributedSelectionPressure();
+		selector = new StochasticallyDistributedSelector();
 	}
 	/**
 	 * @param problem
@@ -115,7 +130,8 @@ public class GeneticOptimizer {
 	 * @param abortCondition
 	 *        The condition for the optimization to terminate.
 	 */
-	public GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition) {
+	public GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, Heredity heredity, List<Mutation> mutations,
+			AbortCondition abortCondition) {
 		this.problem = problem;
 		this.rootPopulation = Collections.emptyList();
 		this.populationSize = populationSize;
@@ -125,16 +141,59 @@ public class GeneticOptimizer {
 	}
 	/**
 	 * Used only for the builder pattern.
+	 * 
+	 * @param problem
+	 *        A wrapper implementation for the problem that calculates the fitness of a DNA.
+	 * 
+	 * @param populationSize
+	 *        The size of the population that is generated, selected, mutated, ...
+	 * 
+	 * @param dnaGenerator
+	 *        A generator for the initial DNA (if no root population is used).
+	 * 
+	 * @param rootPopulation
+	 *        The root population that is used to start the optimization.
+	 * 
+	 * @param heredity
+	 *        The heredity method that is used to combine two individuals to a new individual.
+	 * 
+	 * @param mutations
+	 *        The mutations that are used to change the new individuals that are created using the heredity (all mutations are applied).
+	 * 
+	 * @param abortCondition
+	 *        The condition to let the algorithm terminate (usually after some time or when a fitness threshold is reached).
+	 * 
+	 * @param selectionPressure
+	 *        A selection pressure to calculate the probability to be selected for reproduction based on the fitness.
+	 * 
+	 * @param selector
+	 *        The selector that selects the individuals for reproduction (usually based on the probabilities that were calculated by the
+	 *        selectionPressure).
+	 * 
+	 * @param fathersFraction
+	 *        A deprecated variable that isn't really used. Just for the backwards compatibility.
+	 * 
+	 * @param minimize
+	 *        Determines whether the fitness of the individuals should be minimized (true) or maximized (false).
+	 * 
+	 * @param useLocalElitism
+	 *        Determines whether local elitism should be used.
+	 * 
+	 * @param elites
+	 *        The number of elite individuals that are copied from the last population to the new one to prevent loosing the best individuals.
 	 */
-	protected GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation, Heredity heredity,
-			List<Mutation> mutations, AbortCondition abortCondition, double fathersFraction, boolean minimize)
-			throws IllegalArgumentException, NullPointerException {
+	protected GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation,
+			Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition, SelectionPressure selectionPressure, Selector selector,
+			double fathersFraction, boolean minimize, boolean useLocalElitism, int elites) throws IllegalArgumentException, NullPointerException {
 		Objects.requireNonNull(problem, "The problem mussn't be null.");
 		Objects.requireNonNull(heredity, "Heredity mussn't be null.");
 		Objects.requireNonNull(mutations, "Mutations mussn't be null. Use an empty list if you don't want any mutations.");
 		Objects.requireNonNull(abortCondition, "The abort condition mussn't be null.");
 		if (populationSize <= 0 && (rootPopulation == null || rootPopulation.isEmpty())) {
 			throw new IllegalArgumentException("Either a rootPopulation or a populationSize greater than 0 must be specified.");
+		}
+		if (elites >= populationSize && populationSize > 0) {
+			throw new IllegalArgumentException("Can't use only elites in a population (or more elites than the population size).");
 		}
 		
 		this.problem = problem;
@@ -144,8 +203,12 @@ public class GeneticOptimizer {
 		this.heredity = heredity;
 		this.mutations = mutations;
 		this.abortCondition = abortCondition;
-		this.fathersFraction = fathersFraction;
+		this.selectionPressure = selectionPressure;
+		this.selector = selector;
+		//this.fathersFraction = fathersFraction;
 		this.minimize = minimize;
+		this.useLocalElitism = useLocalElitism;
+		this.elites = elites;
 		
 		if (rootPopulation == null) {
 			rootPopulation = Collections.emptyList();
@@ -160,7 +223,7 @@ public class GeneticOptimizer {
 		long timeUsed = 0;
 		
 		DNA[] population = new DNA[populationSize];
-		DNA[] childs = new DNA[populationSize];
+		//DNA[] childs = new DNA[populationSize];
 		DNA[] nextPopulation = new DNA[populationSize];
 		
 		//create an empty best DNA
@@ -174,23 +237,28 @@ public class GeneticOptimizer {
 		
 		createInitialPopulation(population);
 		
-		simulations = 0;
+		generation = 0;
 		while (!abortCondition.abort(bestDNA, timeUsed)) {
-			generateChilds(population, childs);
-			
-			chooseNextPopulation(population, childs, nextPopulation);
+			//calculate the chance of each individual to be selected for reproduction
+			double[] reproductionProbabilities = selectionPressure.calculateSelectionProbability(population, generation, minimize, timeUsed);
+			//choose the individuals that are selected for reproduction
+			int[] selectedReproductionIndividuals = selector.select(reproductionProbabilities, populationSize - elites);
+			//create the next generation of individuals
+			generateNextPopulation(selectedReproductionIndividuals, population, nextPopulation);
 			
 			//swap the arrays to reuse the allocated space
 			DNA[] tmp = population;
 			population = nextPopulation;
 			nextPopulation = tmp;
 			
-			//check whether the best DNA in the population is better than the current best DNA
-			if (isBestDNA(population[0])) {
-				population[0].copyTo(bestDNA);
+			//check whether there is a new optimal DNA
+			for (int i = 0; i < populationSize; i++) {
+				if (isBestDNA(population[i])) {
+					population[i].copyTo(bestDNA);
+				}
 			}
 			
-			simulations++;
+			generation++;
 			timeUsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 		}
 	}
@@ -201,16 +269,6 @@ public class GeneticOptimizer {
 		}
 		else {
 			return dna.getFitness() > bestDNA.getFitness();
-		}
-	}
-	
-	@VisibleForTesting
-	/*private*/ static void reverse(DNA[] dnas) {
-		int len = dnas.length;
-		for (int i = 0; i < len / 2; i++) {
-			DNA temp = dnas[i];
-			dnas[i] = dnas[len - i - 1];
-			dnas[len - i - 1] = temp;
 		}
 	}
 	
@@ -237,27 +295,19 @@ public class GeneticOptimizer {
 				dna.copyTo(bestDNA);
 			}
 		}
-		//sort the initial population
-		Arrays.sort(population);
-		if (!minimize) {
-			reverse(population);
-		}
 	}
 	
 	@VisibleForTesting
-	/*private*/ void generateChilds(DNA[] population, DNA[] childs) {
-		//create new childs
-		for (int i = 0; i < childs.length; i++) {
-			//choose one of the best DNAs as father
-			int fatherIndex = (int) (ThreadLocalRandom.current().nextDouble() * population.length * fathersFraction);
+	/*private*/ void generateNextPopulation(int[] selectedReproductionIndividuals, DNA[] population, DNA[] nextPopulation) {
+		//leave some spaces for the elites from the last population
+		for (int i = 0; i < populationSize - elites; i++) {
+			int fatherIndex = selectedReproductionIndividuals[2 * i];
+			int motherIndex = selectedReproductionIndividuals[2 * i + 1];
+			
 			DNA father = population[fatherIndex];
-			//choose a mother DNA randomly
-			int motherIndex = (int) (ThreadLocalRandom.current().nextDouble() * population.length - 1);
-			if (motherIndex >= fatherIndex) {
-				motherIndex++;
-			}
 			DNA mother = population[motherIndex];
 			
+			//create a child by mixing the DNA
 			DNA child = heredity.mixDNA(father, mother);
 			
 			for (Mutation mutation : mutations) {
@@ -265,47 +315,96 @@ public class GeneticOptimizer {
 				mutation.mutate(child);
 			}
 			
-			childs[i] = child;
+			//calculate and set the fitness of the child
+			child.setFitness(problem.calculateFitness(child));
+			
+			//add the individual to the next population using the chosen settings
+			addIndividual(father, mother, child, nextPopulation, i);
 		}
 		
-		//calculate the childs' fitness
-		for (int i = 0; i < population.length; i++) {
-			childs[i].setFitness(problem.calculateFitness(childs[i]));
-		}
-		//sort the childs by their fitness
-		Arrays.sort(childs);
-		if (!minimize) {
-			reverse(childs);
-		}
+		//add the elites from the last population to the next population
+		addElites(population, nextPopulation);
 	}
 	
 	@VisibleForTesting
-	/*private*/ void chooseNextPopulation(DNA[] population, DNA[] childs, DNA[] nextPopulation) {
-		//choose the best DNA for the next population
-		int i = 0;
-		int j = 0;
-		if (minimize) {
-			for (int d = 0; d < nextPopulation.length; d++) {
-				if (population[i].getFitness() < childs[j].getFitness()) {
-					nextPopulation[d] = population[i];
-					i++;
+	/*private*/ void addIndividual(DNA father, DNA mother, DNA child, DNA[] nextPopulation, int i) {
+		if (useLocalElitism) {
+			//when local elitism is used only the best DNA (of [father, mother, child]) is added in the next population
+			if (child.getFitness() > father.getFitness()) {
+				if (child.getFitness() > mother.getFitness()) {
+					//the child has the best fitness
+					nextPopulation[i] = child;
 				}
 				else {
-					nextPopulation[d] = childs[j];
-					j++;
+					//the mother has the best fitness
+					nextPopulation[i] = mother;
+				}
+			}
+			else {
+				if (father.getFitness() > mother.getFitness()) {
+					//the father has the best fitness
+					nextPopulation[i] = father;
+				}
+				else {
+					//the mother has the best fitness
+					nextPopulation[i] = mother;
 				}
 			}
 		}
 		else {
-			for (int d = 0; d < nextPopulation.length; d++) {
-				if (population[i].getFitness() > childs[j].getFitness()) {
-					nextPopulation[d] = population[i];
-					i++;
+			//no local elitism -> just add the child
+			nextPopulation[i] = child;
+		}
+	}
+	
+	@VisibleForTesting
+	/*private*/ void addElites(DNA[] population, DNA[] nextPopulation) {
+		if (elites > 0) {
+			DNA[] eliteIndividuals = new DNA[elites];
+			if (minimize) {
+				//initialize with maximum
+				for (int i = 0; i < elites; i++) {
+					eliteIndividuals[i] = new DNA(0);
+					eliteIndividuals[i].setFitness(Double.POSITIVE_INFINITY);
 				}
-				else {
-					nextPopulation[d] = childs[j];
-					j++;
+				
+				//find the best individuals from the last generation
+				for (int i = 0; i < population.length; i++) {
+					for (int j = 0; j < elites; j++) {
+						if (population[i].getFitness() < eliteIndividuals[j].getFitness()) {
+							for (int k = eliteIndividuals.length - 2; k >= 0; k--) {
+								eliteIndividuals[k + 1] = eliteIndividuals[k];
+							}
+							eliteIndividuals[j] = population[i];
+							break;
+						}
+					}
 				}
+			}
+			else {
+				//initialize with minimum
+				for (int i = 0; i < elites; i++) {
+					eliteIndividuals[i] = new DNA(0);
+					eliteIndividuals[i].setFitness(Double.NEGATIVE_INFINITY);
+				}
+				
+				//find the best individuals from the last generation
+				for (int i = 0; i < population.length; i++) {
+					for (int j = 0; j < elites; j++) {
+						if (population[i].getFitness() > eliteIndividuals[j].getFitness()) {
+							for (int k = eliteIndividuals.length - 2; k >= 0; k--) {
+								eliteIndividuals[k + 1] = eliteIndividuals[k];
+							}
+							eliteIndividuals[j] = population[i];
+							break;
+						}
+					}
+				}
+			}
+			
+			//add the elites to the next population (append on the end)
+			for (int i = 0; i < elites; i++) {
+				nextPopulation[i + populationSize - elites] = eliteIndividuals[i];
 			}
 		}
 	}
@@ -325,9 +424,11 @@ public class GeneticOptimizer {
 		this.minimize = minimize;
 	}
 	
+	@Deprecated
 	public double getFathersFraction() {
 		return fathersFraction;
 	}
+	@Deprecated
 	public void setFathersFraction(double fathersFraction) {
 		this.fathersFraction = fathersFraction;
 	}
@@ -346,6 +447,10 @@ public class GeneticOptimizer {
 		this.dnaGenerator = dnaGenerator;
 	}
 	
+	@VisibleForTesting
+	/*public*/ void setElites(int elites) {
+		this.elites = elites;
+	}
 	public GeneticOptimizerProblem getProblem() {
 		return problem;
 	}
@@ -358,7 +463,7 @@ public class GeneticOptimizer {
 		return mutations;
 	}
 	
-	public int getSimulations() {
-		return simulations;
+	public int getGeneration() {
+		return generation;
 	}
 }

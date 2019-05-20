@@ -7,18 +7,25 @@ import java.util.List;
 import net.jfabricationgames.genetic_optimizer.abort_condition.AbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
+import net.jfabricationgames.genetic_optimizer.selection.SelectionPressure;
+import net.jfabricationgames.genetic_optimizer.selection.Selector;
 
 public class GeneticOptimizerBuilder {
 	
 	private GeneticOptimizerProblem problem;
 	private Heredity heredity;
 	private List<Mutation> mutations;
+	private SelectionPressure selectionPressure;
+	private Selector selector;
 	private List<DNA> rootPopulation;
 	private int populationSize;
 	private boolean minimize;
+	@Deprecated
 	private double fathersFraction;
 	private InitialDNAGenerator dnaGenerator;
 	private AbortCondition abortCondition;
+	private boolean useLocalElitism;
+	private int elites;
 	
 	public GeneticOptimizerBuilder() {
 		reset();
@@ -31,7 +38,7 @@ public class GeneticOptimizerBuilder {
 	 */
 	public GeneticOptimizer build() throws IllegalArgumentException, NullPointerException {
 		GeneticOptimizer optimizer = new GeneticOptimizer(problem, populationSize, dnaGenerator, rootPopulation, heredity, mutations, abortCondition,
-				fathersFraction, minimize);
+				selectionPressure, selector, fathersFraction, minimize, useLocalElitism, elites);
 		return optimizer;
 	}
 	
@@ -45,6 +52,8 @@ public class GeneticOptimizerBuilder {
 		fathersFraction = 0.15;
 		dnaGenerator = null;
 		abortCondition = null;
+		useLocalElitism = false;
+		elites = 0;
 	}
 	
 	public GeneticOptimizerProblem getProblem() {
@@ -78,6 +87,22 @@ public class GeneticOptimizerBuilder {
 		return this;
 	}
 	
+	public SelectionPressure getSelectionPressure() {
+		return selectionPressure;
+	}
+	public GeneticOptimizerBuilder setSelectionPressure(SelectionPressure selectionPressure) {
+		this.selectionPressure = selectionPressure;
+		return this;
+	}
+	
+	public Selector getSelector() {
+		return selector;
+	}
+	public GeneticOptimizerBuilder setSelector(Selector selector) {
+		this.selector = selector;
+		return this;
+	}
+	
 	public List<DNA> getRootPopulation() {
 		return rootPopulation;
 	}
@@ -102,9 +127,11 @@ public class GeneticOptimizerBuilder {
 		return this;
 	}
 	
+	@Deprecated
 	public double getFathersFraction() {
 		return fathersFraction;
 	}
+	@Deprecated
 	public GeneticOptimizerBuilder setFathersFraction(double fathersFraction) {
 		this.fathersFraction = fathersFraction;
 		return this;
@@ -123,6 +150,22 @@ public class GeneticOptimizerBuilder {
 	}
 	public GeneticOptimizerBuilder setAbortCondition(AbortCondition abortCondition) {
 		this.abortCondition = abortCondition;
+		return this;
+	}
+	
+	public boolean isUseLocalElitism() {
+		return useLocalElitism;
+	}
+	public GeneticOptimizerBuilder setUseLocalElitism(boolean useLocalElitism) {
+		this.useLocalElitism = useLocalElitism;
+		return this;
+	}
+	
+	public int getElites() {
+		return elites;
+	}
+	public GeneticOptimizerBuilder setElites(int elites) {
+		this.elites = elites;
 		return this;
 	}
 }
