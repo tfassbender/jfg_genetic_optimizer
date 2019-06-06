@@ -28,6 +28,11 @@ public class ThresholdAbortCondition implements AbortCondition {
 		return (upperLimit && (bestFitness > threshold)) || (!upperLimit && (bestFitness < threshold));
 	}
 	
+	@Override
+	public String toString() {
+		return "ThresholdAbortCondition [threshold=" + threshold + ", upperLimit=" + upperLimit + "]";
+	}
+
 	public double getThreshold() {
 		return threshold;
 	}

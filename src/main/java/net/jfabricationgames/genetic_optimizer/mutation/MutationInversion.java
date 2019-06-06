@@ -38,6 +38,11 @@ public class MutationInversion implements Mutation {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return "MutationInversion [mutationRate=" + mutationRate + ", rangeSize=" + rangeSize + ", maxValue=" + maxValue + "]";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

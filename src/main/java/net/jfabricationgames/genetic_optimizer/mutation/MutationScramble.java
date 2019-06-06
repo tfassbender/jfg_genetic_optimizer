@@ -41,6 +41,11 @@ public class MutationScramble implements Mutation {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return "MutationScramble [mutationRate=" + mutationRate + ", maxSwaps=" + maxSwaps + "]";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

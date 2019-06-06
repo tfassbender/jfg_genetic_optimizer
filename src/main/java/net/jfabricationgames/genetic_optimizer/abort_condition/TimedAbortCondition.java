@@ -21,6 +21,11 @@ public class TimedAbortCondition implements AbortCondition {
 		return timeUsed > optimizationTime;
 	}
 	
+	@Override
+	public String toString() {
+		return "TimedAbortCondition [optimizationTime=" + optimizationTime + " ms]";
+	}
+	
 	public long getOptimizationTime() {
 		return optimizationTime;
 	}

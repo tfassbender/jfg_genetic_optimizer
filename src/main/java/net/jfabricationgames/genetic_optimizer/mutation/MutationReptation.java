@@ -46,6 +46,12 @@ public class MutationReptation implements Mutation {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return "MutationReptation [mutationRate=" + mutationRate + ", reptationLengthMin=" + reptationLengthMin + ", reptationLengthMax="
+				+ reptationLengthMax + ", frontToBackProbability=" + frontToBackProbability + "]";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

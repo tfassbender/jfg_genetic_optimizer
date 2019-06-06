@@ -48,6 +48,11 @@ public class HeredityShuffleCross implements Heredity {
 		return new DNA(childChromosomes);
 	}
 	
+	@Override
+	public String toString() {
+		return "HeredityShuffleCross []";
+	}
+	
 	@VisibleForTesting
 	/*private*/ int[] generateShuffleIndices(int arrayLength) {
 		//shuffle algorithm by fisher-yates (creates only the indices but the algorithm is similar)

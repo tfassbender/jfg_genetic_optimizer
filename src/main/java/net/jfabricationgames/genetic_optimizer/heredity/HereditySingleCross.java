@@ -39,6 +39,11 @@ public class HereditySingleCross implements Heredity {
 		return child;
 	}
 	
+	@Override
+	public String toString() {
+		return "HereditySingleCross []";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();
