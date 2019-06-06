@@ -41,7 +41,7 @@ class GeneticOptimizerBuilderTest {
 		InitialDNAGenerator dnaGenerator = lenth -> new DNA(lenth);
 		
 		//every DNA is good enough (because the fitness is always 42)
-		AbortCondition abortCondition = (bestDNA, timeUsed) -> bestDNA.getFitness() > 40 || timeUsed > 50;
+		AbortCondition abortCondition = (bestDNA, timeUsed, generation) -> bestDNA.getFitness() > 40 || timeUsed > 50;
 		
 		GeneticOptimizerBuilder builder = new GeneticOptimizerBuilder();
 		builder.setProblem(problem).setHeredity(heredity).addMutation(mutation).setPopulationSize(populationSize).setMinimize(minimize)

@@ -7,6 +7,9 @@ public class ThresholdAbortCondition implements AbortCondition {
 	private double threshold;
 	private boolean upperLimit;
 	
+	private double initialFitness;
+	private boolean initialFitnessSet;
+	
 	/**
 	 * An abort condition that aborts the optimization as soon as the best fitness reaches a threshold.
 	 * 
@@ -19,20 +22,46 @@ public class ThresholdAbortCondition implements AbortCondition {
 	public ThresholdAbortCondition(double threshold, boolean upperLimit) {
 		this.threshold = threshold;
 		this.upperLimit = upperLimit;
+		
+		initialFitness = 0;
+		initialFitnessSet = false;
 	}
 	
 	@Override
-	public boolean abort(DNA bestDna, long timeUsed) {
+	public boolean abort(DNA bestDna, long timeUsed, int generation) {
 		double bestFitness = bestDna.getFitness();
 		//best fitness above threshold (if upperLimit == true) or below threshold (if upperLimit == false)
 		return (upperLimit && (bestFitness > threshold)) || (!upperLimit && (bestFitness < threshold));
 	}
 	
 	@Override
+	public double getProgress(DNA bestDNA, long timeUsed, int generation) {
+		if (!initialFitnessSet) {
+			initialFitnessSet = true;
+			initialFitness = bestDNA.getFitness();
+			return 0d;
+		}
+		else {
+			double initDiff;
+			double currDiff;
+			if (upperLimit) {
+				initDiff = threshold - initialFitness;
+				currDiff = threshold - bestDNA.getFitness();
+			}
+			else {
+				initDiff = initialFitness - threshold;
+				currDiff = bestDNA.getFitness() - threshold;
+			}
+			double progress = 1d - (currDiff / initDiff);
+			return progress;
+		}
+	}
+	
+	@Override
 	public String toString() {
 		return "ThresholdAbortCondition [threshold=" + threshold + ", upperLimit=" + upperLimit + "]";
 	}
-
+	
 	public double getThreshold() {
 		return threshold;
 	}

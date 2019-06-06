@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import net.jfabricationgames.genetic_optimizer.abort_condition.AbortCondition;
 import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
@@ -31,6 +33,8 @@ public class GeneticOptimizer {
 	private int populationSize;
 	private boolean useLocalElitism;//local elitism to choose the best individual when reproducing
 	private int elites;//global used elites to not loose the best individuals (regardless of generation)
+	
+	private DoubleProperty progressProperty;//indicates the progress of the calculation (from 0 to 1)
 	
 	//private int simulations;
 	private int generation;
@@ -86,6 +90,7 @@ public class GeneticOptimizer {
 		
 		selectionPressure = new EquallyDistributedSelectionPressure();
 		selector = new StochasticallyDistributedSelector();
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 	}
 	/**
 	 * @param problem
@@ -113,6 +118,7 @@ public class GeneticOptimizer {
 		
 		selectionPressure = new EquallyDistributedSelectionPressure();
 		selector = new StochasticallyDistributedSelector();
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 	}
 	/**
 	 * @param problem
@@ -138,6 +144,7 @@ public class GeneticOptimizer {
 		this.heredity = heredity;
 		this.mutations = mutations;
 		this.abortCondition = abortCondition;
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 	}
 	/**
 	 * Used only for the builder pattern.
@@ -210,6 +217,8 @@ public class GeneticOptimizer {
 		this.useLocalElitism = useLocalElitism;
 		this.elites = elites;
 		
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
+		
 		if (rootPopulation == null) {
 			rootPopulation = Collections.emptyList();
 		}
@@ -221,6 +230,8 @@ public class GeneticOptimizer {
 	public void optimize() {
 		long start = System.nanoTime();
 		long timeUsed = 0;
+		
+		progressProperty.set(0);
 		
 		DNA[] population = new DNA[populationSize];
 		//DNA[] childs = new DNA[populationSize];
@@ -238,7 +249,10 @@ public class GeneticOptimizer {
 		createInitialPopulation(population);
 		
 		generation = 0;
-		while (!abortCondition.abort(bestDNA, timeUsed)) {
+		while (!abortCondition.abort(bestDNA, timeUsed, generation)) {
+			//update the progress property
+			progressProperty.set(abortCondition.getProgress(bestDNA, timeUsed, generation));
+			
 			//calculate the chance of each individual to be selected for reproduction
 			double[] reproductionProbabilities = selectionPressure.calculateSelectionProbability(population, generation, minimize, timeUsed);
 			//choose the individuals that are selected for reproduction
@@ -261,6 +275,9 @@ public class GeneticOptimizer {
 			generation++;
 			timeUsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 		}
+		
+		//update the progress
+		progressProperty.set(1d);
 	}
 	
 	private boolean isBestDNA(DNA dna) {
@@ -465,5 +482,9 @@ public class GeneticOptimizer {
 	
 	public int getGeneration() {
 		return generation;
+	}
+	
+	public DoubleProperty getProgressProperty() {
+		return progressProperty;
 	}
 }
