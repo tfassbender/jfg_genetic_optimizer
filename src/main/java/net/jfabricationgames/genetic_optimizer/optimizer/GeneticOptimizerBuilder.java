@@ -26,6 +26,7 @@ public class GeneticOptimizerBuilder {
 	private AbortCondition abortCondition;
 	private boolean useLocalElitism;
 	private int elites;
+	private int usedThreads;
 	
 	public GeneticOptimizerBuilder() {
 		reset();
@@ -38,7 +39,7 @@ public class GeneticOptimizerBuilder {
 	 */
 	public GeneticOptimizer build() throws IllegalArgumentException, NullPointerException {
 		GeneticOptimizer optimizer = new GeneticOptimizer(problem, populationSize, dnaGenerator, rootPopulation, heredity, mutations, abortCondition,
-				selectionPressure, selector, fathersFraction, minimize, useLocalElitism, elites);
+				selectionPressure, selector, fathersFraction, minimize, useLocalElitism, elites, usedThreads);
 		return optimizer;
 	}
 	
@@ -54,6 +55,7 @@ public class GeneticOptimizerBuilder {
 		abortCondition = null;
 		useLocalElitism = false;
 		elites = 0;
+		usedThreads = 1;
 	}
 	
 	public GeneticOptimizerProblem getProblem() {
@@ -107,7 +109,12 @@ public class GeneticOptimizerBuilder {
 		return rootPopulation;
 	}
 	public GeneticOptimizerBuilder setRootPopulation(List<DNA> rootPopulation) {
-		this.rootPopulation = rootPopulation;
+		if (rootPopulation == null) {
+			this.rootPopulation = Collections.emptyList();
+		}
+		else {
+			this.rootPopulation = rootPopulation;			
+		}
 		return this;
 	}
 	
@@ -167,5 +174,26 @@ public class GeneticOptimizerBuilder {
 	public GeneticOptimizerBuilder setElites(int elites) {
 		this.elites = elites;
 		return this;
+	}
+	
+	public int getUsedThreads() {
+		return usedThreads;
+	}
+	public GeneticOptimizerBuilder setUsedThreads(int usedThreads) {
+		this.usedThreads = usedThreads;
+		return this;
+	}
+	public GeneticOptimizerBuilder setUsedThreadsToNumCores() {
+		int poolThreads = Runtime.getRuntime().availableProcessors();
+		poolThreads = Math.max(1, poolThreads);
+		return setUsedThreads(poolThreads);
+	}
+	public GeneticOptimizerBuilder setUsedThreadsCpuUsage(double aimedCpuUsageInPercent) {
+		double Ncpu = Runtime.getRuntime().availableProcessors();
+		double Ucpu = aimedCpuUsageInPercent;
+		double W_C = 0.25;//waiting time / calculation time (assumed)
+		int poolThreads = (int) Math.round((Ncpu * Ucpu * (1d + W_C)));
+		poolThreads = Math.max(1, poolThreads);
+		return setUsedThreads(poolThreads);
 	}
 }

@@ -157,7 +157,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateInitialPopulationFromRootPopulation_shouldCreateAnInitialPopulationFromTheRootPopulation() {
+	public void testCreateInitialPopulationFromRootPopulation_shouldCreateAnInitialPopulationFromTheRootPopulation() throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFixedFitness(42d);
 		when(problem.getLength()).thenReturn(5);
@@ -190,7 +190,8 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateSortedInitialPopulation_shouldCreateAnInitialPopulationFromTheRootPopulationAndSortItByItsFitness() {
+	public void testCreateSortedInitialPopulation_shouldCreateAnInitialPopulationFromTheRootPopulationAndSortItByItsFitness()
+			throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -224,7 +225,8 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulation() {
+	public void testCreateInitialPopulationWithMaximizationProblem_shouldCreateAnInitialPopulationFromTheRootPopulation()
+			throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -258,7 +260,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateInitialPopulationWithGenerator() {
+	public void testCreateInitialPopulationWithGenerator() throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -304,7 +306,8 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testCreateInitialPopulationWithDefaultGenerator_shouldGenerateRandomValuesForEveryGenomeInASpecifiedRange() {
+	public void testCreateInitialPopulationWithDefaultGenerator_shouldGenerateRandomValuesForEveryGenomeInASpecifiedRange()
+			throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -335,7 +338,42 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testGenerateNextPopulation_verifiesTheCorrectMethodCalls() {
+	public void testCreateInitialPopulationWithMultithreading() throws InterruptedException {
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setRootPopulation(null);
+		
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
+		when(problem.getLength()).thenReturn(5);
+		
+		Heredity heredity = mock(Heredity.class);
+		List<Mutation> mutations = new ArrayList<Mutation>(1);
+		mutations.add(mock(Mutation.class));
+		int time = 1000;//1 second
+		
+		builder.setProblem(problem).setPopulationSize(2).setHeredity(heredity).setMutations(mutations)
+				.setAbortCondition(new TimedAbortCondition(time)).setUsedThreads(2);
+		
+		GeneticOptimizer optimizer = builder.build();
+		optimizer.setBestDNA(new DNA(5));
+		//a population of 50 is requested; all 50 chromosomes are created using the default generator of the DNA class
+		DNA[] population = new DNA[50];
+		//the range of the random values is set to 0.1
+		optimizer.setRandomDNARange(0.1);
+		
+		//ACT
+		//the population array is filled with the generated chromsomes
+		optimizer.createInitialPopulation(population);
+		
+		//ASSERT
+		//every DNA fitness has to be between 0 (inclusive) and 0.5 (exclusive) because the fitness is the sum of the genomes
+		for (int i = 0; i < population.length; i++) {
+			assertTrue(population[i].getFitness() >= 0);
+			assertTrue(population[i].getFitness() < 0.5, "The population fitness should be lower than 0.5 but was " + population[i].getFitness());
+		}
+	}
+	
+	@Test
+	public void testGenerateNextPopulation_verifiesTheCorrectMethodCalls() throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -370,7 +408,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testGenerateNextPopulationUsesRightFatherChromosome() {
+	public void testGenerateNextPopulationUsesRightFatherChromosome() throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -417,7 +455,56 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testGenerateChilds_noHeredityOfSameChromosomes() {
+	public void testGenerateNextPopulationUsingMultithreading() throws InterruptedException {
+		//ARRANGE
+		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
+		when(problem.getLength()).thenReturn(5);
+		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
+		//set some values to the genomes of the initial population to make them sortable (using the sum of genomes as fitness)
+		for (int i = 0; i < initialPopulation.size(); i++) {
+			initialPopulation.get(i).getDNACode()[0] = 42 + i;
+		}
+		//use a Heredity that just return the father chromosome (because something needs to be returned)
+		Heredity heredity = generateHeredityThatReturnsFatherCromosome();
+		List<Mutation> mutations = new ArrayList<Mutation>(3);
+		for (int i = 0; i < 3; i++) {
+			mutations.add(mock(Mutation.class));
+		}
+		int time = 1000;//1 second
+		
+		GeneticOptimizerBuilder builder = generateDefaultBuilder().setProblem(problem).setRootPopulation(initialPopulation).setHeredity(heredity)
+				.setMutations(mutations).setAbortCondition(new TimedAbortCondition(time)).setUsedThreads(2);
+		GeneticOptimizer optimizer = builder.build();
+		optimizer.setBestDNA(new DNA(5));//set any DNA to prevent NullPointerException
+		DNA[] population = new DNA[5];
+		//generate an initial population (that is the initial population that was given as parameter)
+		optimizer.createInitialPopulation(population);
+		
+		//the space for the generated childs (bigger than the population to test the correct number of generated childs, and method calls)
+		DNA[] childs = new DNA[5];
+		
+		//ACT
+		optimizer.generateNextPopulation(new int[10], population, childs);
+		
+		//ASSERT
+		//the heredity always returns the father and the mutation does nothing -> the father chromosome is always the same and the childs are all the father chromosome
+		ArgumentCaptor<DNA> argumentCaptorFatherChromosome = ArgumentCaptor.forClass(DNA.class);
+		verify(heredity, times(childs.length)).mixDNA(argumentCaptorFatherChromosome.capture(), any(DNA.class));
+		
+		List<DNA> captured = argumentCaptorFatherChromosome.getAllValues();
+		//the expected value is always the chromosome "population[0]"
+		for (DNA dna : captured) {
+			assertEquals(population[0], dna);
+		}
+		
+		//all childs should be the father chromosome (because that's the one that is returned and there is no mutation)
+		for (DNA child : childs) {
+			assertEquals(population[0], child);
+		}
+	}
+	
+	@Test
+	public void testGenerateChilds_noHeredityOfSameChromosomes() throws InterruptedException {
 		//ARRANGE
 		GeneticOptimizerProblem problem = generateProblemWithFitnessAsSumOfGenomes();
 		when(problem.getLength()).thenReturn(5);
@@ -448,7 +535,7 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
-	public void testGenerateNextPopulation() {
+	public void testGenerateNextPopulation() throws InterruptedException {
 		int populationSize = 5;
 		int dnaLength = 5;
 		
@@ -569,6 +656,69 @@ class GeneticOptimizerTest {
 		
 		//assert that the calculation thread did not take the whole second of calculation time because it got interrupted
 		assertTrue(timeUsed < 50);
+	}
+	
+	@Test
+	public void testSubmitAndWait() {
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setUsedThreads(1);
+		GeneticOptimizer optimizer = builder.build();
+		
+		Runnable[] runnables = new Runnable[2];
+		int[] sleepTime = new int[] {20, 30};
+		for (int i = 0; i < runnables.length; i++) {
+			final int index = i;
+			runnables[i] = new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(sleepTime[index]);
+					}
+					catch (InterruptedException e) {
+						fail("Thread got interrupted unexpectedly");
+					}
+				}
+			};
+		}
+		
+		long startTime = System.currentTimeMillis();
+		try {
+			optimizer.submitAndWait(runnables);
+		}
+		catch (IllegalStateException | InterruptedException e) {
+			fail("Calculation had unexpected problems: " + e.getMessage());
+		}
+		long timeUsed = System.currentTimeMillis() - startTime;
+		
+		//the used time has to be more than the summed time of the runnables (only 1 thread is used -10ms to be shure)
+		assertTrue(timeUsed > 40);
+	}
+	
+	@Test
+	public void testSplitToThreads() {
+		int[] split1 = GeneticOptimizer.splitToThreads(3, 3);
+		int[] split2 = GeneticOptimizer.splitToThreads(4, 3);
+		int[] split3 = GeneticOptimizer.splitToThreads(6, 3);
+		int[] split4 = GeneticOptimizer.splitToThreads(2, 3);
+		
+		assertArrayEquals(new int[] {1, 1, 1}, split1);
+		assertArrayEquals(new int[] {2, 1, 1}, split2);
+		assertArrayEquals(new int[] {2, 2, 2}, split3);
+		assertArrayEquals(new int[] {1, 1, 0}, split4);
+	}
+	
+	@Test
+	public void testGetThreadTasks() {
+		int[] threadTasks1 = GeneticOptimizer.getThreadTasks(3, 3);
+		int[] threadTasks2 = GeneticOptimizer.getThreadTasks(4, 3);
+		int[] threadTasks3 = GeneticOptimizer.getThreadTasks(6, 3);
+		int[] threadTasks4 = GeneticOptimizer.getThreadTasks(2, 3);
+		
+		assertArrayEquals(new int[] {0, 1, 2, 3}, threadTasks1);
+		assertArrayEquals(new int[] {0, 2, 3, 4}, threadTasks2);
+		assertArrayEquals(new int[] {0, 2, 4, 6}, threadTasks3);
+		assertArrayEquals(new int[] {0, 1, 2, 2}, threadTasks4);
 	}
 	
 	private GeneticOptimizerBuilder generateDefaultBuilder() {
