@@ -249,7 +249,7 @@ public class GeneticOptimizer {
 		createInitialPopulation(population);
 		
 		generation = 0;
-		while (!abortCondition.abort(bestDNA, timeUsed, generation)) {
+		while (!abortCondition.abort(bestDNA, timeUsed, generation) && !Thread.currentThread().isInterrupted()) {
 			//update the progress property
 			progressProperty.set(abortCondition.getProgress(bestDNA, timeUsed, generation));
 			

@@ -23,6 +23,8 @@ import org.mockito.stubbing.Answer;
 import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
 import net.jfabricationgames.genetic_optimizer.mutation.Mutation;
+import net.jfabricationgames.genetic_optimizer.selection.FitnessProportionalSelectionPressure;
+import net.jfabricationgames.genetic_optimizer.selection.FitnessProportionalSelector;
 
 class GeneticOptimizerTest {
 	
@@ -535,10 +537,45 @@ class GeneticOptimizerTest {
 		assertArrayEquals(expectedNextPopulation, nextPopulation);
 	}
 	
+	@Test
+	public void testInterruptThread() {
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setAbortCondition(new TimedAbortCondition(1000));//run 1 second
+		builder.setPopulationSize(50).setProblem(generateProblemWithFitnessAsSumOfGenomes(5));
+		
+		GeneticOptimizer optimizer = builder.build();
+		
+		Thread thread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				optimizer.optimize();
+			}
+		});
+		thread.start();
+		long startingTime = System.currentTimeMillis();
+		
+		//interrupting the thread should lead to the interrupting of the calculation 
+		thread.interrupt();
+		try {
+			//wait for the calculation thread to join
+			thread.join();
+		}
+		catch (InterruptedException ie) {
+			fail("Interrupted while waiting for joining thread: " + ie.getMessage());
+		}
+		
+		long timeUsed = System.currentTimeMillis() - startingTime;
+		
+		//assert that the calculation thread did not take the whole second of calculation time because it got interrupted
+		assertTrue(timeUsed < 50);
+	}
+	
 	private GeneticOptimizerBuilder generateDefaultBuilder() {
 		GeneticOptimizerBuilder builder = new GeneticOptimizerBuilder();
 		builder.setProblem(generateProblemWithFitnessAsSumOfGenomes()).setHeredity(generateHeredityThatReturnsFatherCromosome())
 				.setMutations(new ArrayList<Mutation>(0)).setAbortCondition(new TimedAbortCondition(100))
+				.setSelectionPressure(new FitnessProportionalSelectionPressure()).setSelector(new FitnessProportionalSelector())
 				.setRootPopulation(generateInitialPopulation(5, 5));
 		
 		return builder;
@@ -559,6 +596,9 @@ class GeneticOptimizerTest {
 	}
 	
 	private GeneticOptimizerProblem generateProblemWithFitnessAsSumOfGenomes() {
+		return generateProblemWithFitnessAsSumOfGenomes(0);
+	}
+	private GeneticOptimizerProblem generateProblemWithFitnessAsSumOfGenomes(int dnaSize) {
 		GeneticOptimizerProblem problem = mock(GeneticOptimizerProblem.class);
 		when(problem.calculateFitness(any(DNA.class))).thenAnswer(new Answer<Double>() {
 			
@@ -573,6 +613,7 @@ class GeneticOptimizerTest {
 				return sum;
 			}
 		});
+		when(problem.getLength()).thenReturn(dnaSize);
 		return problem;
 	}
 	
