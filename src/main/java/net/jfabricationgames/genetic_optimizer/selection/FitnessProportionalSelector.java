@@ -35,6 +35,11 @@ public class FitnessProportionalSelector implements Selector {
 		return selectionPairs;
 	}
 	
+	@Override
+	public String toString() {
+		return "FitnessProportionalSelector []";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

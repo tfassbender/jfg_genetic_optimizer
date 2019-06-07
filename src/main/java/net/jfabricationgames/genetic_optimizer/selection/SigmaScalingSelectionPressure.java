@@ -98,4 +98,9 @@ public class SigmaScalingSelectionPressure implements SelectionPressure {
 		
 		return probabilities;
 	}
+	
+	@Override
+	public String toString() {
+		return "SigmaScalingSelectionPressure [beta=" + beta + ", betaFunction=" + betaFunction + "]";
+	}
 }

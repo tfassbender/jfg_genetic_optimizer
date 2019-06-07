@@ -39,6 +39,11 @@ public class HeredityRandom implements Heredity {
 		return child;
 	}
 	
+	@Override
+	public String toString() {
+		return "HeredityRandom [probabilityFather=" + probabilityFather + "]";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

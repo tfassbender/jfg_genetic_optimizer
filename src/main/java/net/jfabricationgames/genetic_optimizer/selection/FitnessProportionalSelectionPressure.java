@@ -50,4 +50,9 @@ public class FitnessProportionalSelectionPressure implements SelectionPressure {
 		
 		return probabilities;
 	}
+	
+	@Override
+	public String toString() {
+		return "FitnessProportionalSelectionPressure [defaultFitness=" + defaultFitness + "]";
+	}
 }

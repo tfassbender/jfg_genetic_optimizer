@@ -50,6 +50,11 @@ public class HeredityDoubleCross implements Heredity {
 		return child;
 	}
 	
+	@Override
+	public String toString() {
+		return "HeredityDoubleCross []";
+	}
+	
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

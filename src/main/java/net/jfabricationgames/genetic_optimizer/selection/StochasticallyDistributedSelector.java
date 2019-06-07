@@ -63,4 +63,9 @@ public class StochasticallyDistributedSelector implements Selector {
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();
 	}
+	
+	@Override
+	public String toString() {
+		return "StochasticallyDistributedSelector []";
+	}
 }

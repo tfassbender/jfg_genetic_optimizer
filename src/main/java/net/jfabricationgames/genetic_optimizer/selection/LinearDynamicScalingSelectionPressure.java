@@ -100,4 +100,10 @@ public class LinearDynamicScalingSelectionPressure implements SelectionPressure 
 		
 		return probabilities;
 	}
+	
+	@Override
+	public String toString() {
+		return "LinearDynamicScalingSelectionPressure [alpha=" + alpha + ", beta=" + beta + ", alphaFunction=" + alphaFunction + ", betaFunction="
+				+ betaFunction + "]";
+	}
 }

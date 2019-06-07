@@ -16,4 +16,9 @@ public class EquallyDistributedSelectionPressure implements SelectionPressure {
 		}
 		return probabilities;
 	}
+	
+	@Override
+	public String toString() {
+		return "EquallyDistributedSelectionPressure []";
+	}
 }

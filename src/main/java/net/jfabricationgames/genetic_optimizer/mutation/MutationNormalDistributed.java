@@ -52,6 +52,11 @@ public class MutationNormalDistributed implements Mutation {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return "MutationNormalDistributed [mutationRate=" + mutationRate + ", maxMutatedFieldsPropotion=" + maxMutatedFieldsPropotion + ", maxValue="
+				+ maxValue + ", minValue=" + minValue + ", expectedValue=" + expectedValue + ", standardDeviation=" + standardDeviation + "]";
+	}
 	@VisibleForTesting
 	/*private*/ double getRandomNumber() {
 		return ThreadLocalRandom.current().nextDouble();

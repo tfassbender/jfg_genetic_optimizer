@@ -1,12 +1,19 @@
 package net.jfabricationgames.genetic_optimizer.optimizer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import net.jfabricationgames.genetic_optimizer.abort_condition.AbortCondition;
 import net.jfabricationgames.genetic_optimizer.abort_condition.TimedAbortCondition;
 import net.jfabricationgames.genetic_optimizer.heredity.Heredity;
@@ -31,6 +38,11 @@ public class GeneticOptimizer {
 	private int populationSize;
 	private boolean useLocalElitism;//local elitism to choose the best individual when reproducing
 	private int elites;//global used elites to not loose the best individuals (regardless of generation)
+	
+	private int usedThreads;//the number of threads used for the calculation
+	private ExecutorService executorService;//an executor service for multi-threading
+	
+	private DoubleProperty progressProperty;//indicates the progress of the calculation (from 0 to 1)
 	
 	//private int simulations;
 	private int generation;
@@ -86,6 +98,9 @@ public class GeneticOptimizer {
 		
 		selectionPressure = new EquallyDistributedSelectionPressure();
 		selector = new StochasticallyDistributedSelector();
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
+		usedThreads = 1;//no multi-threading by default
+		executorService = Executors.newFixedThreadPool(usedThreads);
 	}
 	/**
 	 * @param problem
@@ -113,6 +128,9 @@ public class GeneticOptimizer {
 		
 		selectionPressure = new EquallyDistributedSelectionPressure();
 		selector = new StochasticallyDistributedSelector();
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
+		usedThreads = 1;//no multi-threading by default
+		executorService = Executors.newFixedThreadPool(usedThreads);
 	}
 	/**
 	 * @param problem
@@ -138,6 +156,9 @@ public class GeneticOptimizer {
 		this.heredity = heredity;
 		this.mutations = mutations;
 		this.abortCondition = abortCondition;
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
+		usedThreads = 1;//no multi-threading by default
+		executorService = Executors.newFixedThreadPool(usedThreads);
 	}
 	/**
 	 * Used only for the builder pattern.
@@ -184,7 +205,8 @@ public class GeneticOptimizer {
 	 */
 	protected GeneticOptimizer(GeneticOptimizerProblem problem, int populationSize, InitialDNAGenerator dnaGenerator, List<DNA> rootPopulation,
 			Heredity heredity, List<Mutation> mutations, AbortCondition abortCondition, SelectionPressure selectionPressure, Selector selector,
-			double fathersFraction, boolean minimize, boolean useLocalElitism, int elites) throws IllegalArgumentException, NullPointerException {
+			double fathersFraction, boolean minimize, boolean useLocalElitism, int elites, int usedThreads)
+			throws IllegalArgumentException, NullPointerException {
 		Objects.requireNonNull(problem, "The problem mussn't be null.");
 		Objects.requireNonNull(heredity, "Heredity mussn't be null.");
 		Objects.requireNonNull(mutations, "Mutations mussn't be null. Use an empty list if you don't want any mutations.");
@@ -194,6 +216,9 @@ public class GeneticOptimizer {
 		}
 		if (elites >= populationSize && populationSize > 0) {
 			throw new IllegalArgumentException("Can't use only elites in a population (or more elites than the population size).");
+		}
+		if (usedThreads <= 0) {
+			throw new IllegalArgumentException("At least 1 thread has to be used to calculate. Input size was: " + usedThreads);
 		}
 		
 		this.problem = problem;
@@ -209,18 +234,24 @@ public class GeneticOptimizer {
 		this.minimize = minimize;
 		this.useLocalElitism = useLocalElitism;
 		this.elites = elites;
+		this.usedThreads = usedThreads;
+		
+		executorService = Executors.newFixedThreadPool(usedThreads);
+		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 		
 		if (rootPopulation == null) {
 			rootPopulation = Collections.emptyList();
 		}
 		else if (populationSize <= 0) {
-			populationSize = rootPopulation.size();
+			this.populationSize = rootPopulation.size();
 		}
 	}
 	
 	public void optimize() {
 		long start = System.nanoTime();
 		long timeUsed = 0;
+		
+		progressProperty.set(0);
 		
 		DNA[] population = new DNA[populationSize];
 		//DNA[] childs = new DNA[populationSize];
@@ -235,16 +266,31 @@ public class GeneticOptimizer {
 			bestDNA.setFitness(Double.NEGATIVE_INFINITY);
 		}
 		
-		createInitialPopulation(population);
+		try {
+			createInitialPopulation(population);
+		}
+		catch (InterruptedException ie) {
+			//catch the interrupted exception and set the interrupted state again to terminate directly
+			Thread.currentThread().interrupt();
+		}
 		
 		generation = 0;
-		while (!abortCondition.abort(bestDNA, timeUsed)) {
+		while (!abortCondition.abort(bestDNA, timeUsed, generation) && !Thread.currentThread().isInterrupted()) {
+			//update the progress property
+			progressProperty.set(abortCondition.getProgress(bestDNA, timeUsed, generation));
+			
 			//calculate the chance of each individual to be selected for reproduction
 			double[] reproductionProbabilities = selectionPressure.calculateSelectionProbability(population, generation, minimize, timeUsed);
 			//choose the individuals that are selected for reproduction
 			int[] selectedReproductionIndividuals = selector.select(reproductionProbabilities, populationSize - elites);
 			//create the next generation of individuals
-			generateNextPopulation(selectedReproductionIndividuals, population, nextPopulation);
+			try {
+				generateNextPopulation(selectedReproductionIndividuals, population, nextPopulation);
+			}
+			catch (InterruptedException ie) {
+				Thread.currentThread().interrupt();
+				break;
+			}
 			
 			//swap the arrays to reuse the allocated space
 			DNA[] tmp = population;
@@ -261,6 +307,15 @@ public class GeneticOptimizer {
 			generation++;
 			timeUsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 		}
+		
+		//update the progress
+		if (Thread.currentThread().isInterrupted()) {
+			//the execution stopped because of an interruption -> calculation is not complete
+			progressProperty.set(0d);
+		}
+		else {
+			progressProperty.set(1d);
+		}
 	}
 	
 	private boolean isBestDNA(DNA dna) {
@@ -273,54 +328,85 @@ public class GeneticOptimizer {
 	}
 	
 	@VisibleForTesting
-	/*private*/ void createInitialPopulation(DNA[] population) {
+	/*private*/ void createInitialPopulation(DNA[] population) throws InterruptedException {
 		//create the initial population by the rootPopulation or generate a random population
-		for (int i = 0; i < population.length; i++) {
-			DNA dna;
-			if (i < rootPopulation.size()) {
-				dna = new DNA(problem.getLength());
-				rootPopulation.get(i).copyTo(dna);
-			}
-			else if (dnaGenerator != null) {
-				dna = dnaGenerator.generateRandomDNA(problem.getLength());
-			}
-			else {
-				dna = DNA.generateRandomDNA(problem.getLength(), randomDNARange);
-			}
-			
-			dna.setFitness(problem.calculateFitness(dna));
-			population[i] = dna;
-			
-			if (isBestDNA(dna)) {
-				dna.copyTo(bestDNA);
-			}
+		int[] threadTasks = getThreadTasks(population.length, usedThreads);
+		Runnable[] runnables = new Runnable[usedThreads];
+		
+		for (int i = 0; i < usedThreads; i++) {
+			final int runnableIndex = i;
+			Runnable runnable = new Runnable() {
+				
+				@Override
+				public void run() {
+					for (int i = threadTasks[runnableIndex]; i < threadTasks[runnableIndex + 1]; i++) {
+						DNA dna;
+						if (i < rootPopulation.size()) {
+							dna = new DNA(problem.getLength());
+							rootPopulation.get(i).copyTo(dna);
+						}
+						else if (dnaGenerator != null) {
+							dna = dnaGenerator.generateRandomDNA(problem.getLength());
+						}
+						else {
+							dna = DNA.generateRandomDNA(problem.getLength(), randomDNARange);
+						}
+						
+						dna.setFitness(problem.calculateFitness(dna));
+						population[i] = dna;
+						
+						if (isBestDNA(dna)) {
+							dna.copyTo(bestDNA);
+						}
+					}
+				}
+			};
+			runnables[i] = runnable;
 		}
+		
+		submitAndWait(runnables);
 	}
 	
 	@VisibleForTesting
-	/*private*/ void generateNextPopulation(int[] selectedReproductionIndividuals, DNA[] population, DNA[] nextPopulation) {
+	/*private*/ void generateNextPopulation(int[] selectedReproductionIndividuals, DNA[] population, DNA[] nextPopulation)
+			throws InterruptedException {
 		//leave some spaces for the elites from the last population
-		for (int i = 0; i < populationSize - elites; i++) {
-			int fatherIndex = selectedReproductionIndividuals[2 * i];
-			int motherIndex = selectedReproductionIndividuals[2 * i + 1];
-			
-			DNA father = population[fatherIndex];
-			DNA mother = population[motherIndex];
-			
-			//create a child by mixing the DNA
-			DNA child = heredity.mixDNA(father, mother);
-			
-			for (Mutation mutation : mutations) {
-				//mutate the child to build new solutions
-				mutation.mutate(child);
-			}
-			
-			//calculate and set the fitness of the child
-			child.setFitness(problem.calculateFitness(child));
-			
-			//add the individual to the next population using the chosen settings
-			addIndividual(father, mother, child, nextPopulation, i);
+		int[] threadTasks = getThreadTasks(populationSize - elites, usedThreads);
+		Runnable[] runnables = new Runnable[usedThreads];
+		
+		for (int i = 0; i < usedThreads; i++) {
+			final int runnableIndex = i;
+			Runnable runnable = new Runnable() {
+				
+				@Override
+				public void run() {
+					for (int i = threadTasks[runnableIndex]; i < threadTasks[runnableIndex + 1]; i++) {
+						int fatherIndex = selectedReproductionIndividuals[2 * i];
+						int motherIndex = selectedReproductionIndividuals[2 * i + 1];
+						
+						DNA father = population[fatherIndex];
+						DNA mother = population[motherIndex];
+						
+						//create a child by mixing the DNA
+						DNA child = heredity.mixDNA(father, mother);
+						
+						for (Mutation mutation : mutations) {
+							//mutate the child to build new solutions
+							mutation.mutate(child);
+						}
+						
+						//calculate and set the fitness of the child
+						child.setFitness(problem.calculateFitness(child));
+						
+						//add the individual to the next population using the chosen settings
+						addIndividual(father, mother, child, nextPopulation, i);
+					}
+				}
+			};
+			runnables[i] = runnable;
 		}
+		
+		submitAndWait(runnables);
 		
 		//add the elites from the last population to the next population
 		addElites(population, nextPopulation);
@@ -409,6 +495,50 @@ public class GeneticOptimizer {
 		}
 	}
 	
+	/**
+	 * Submit the runnables to the executor and wait for all of them to finish.
+	 */
+	@VisibleForTesting
+	/*private*/ void submitAndWait(Runnable[] runnables) throws InterruptedException, IllegalStateException {
+		//submit all runnables and save the futures
+		List<Future<?>> futures = new ArrayList<Future<?>>(usedThreads);
+		for (Runnable runnable : runnables) {
+			futures.add(executorService.submit(runnable));
+		}
+		//wait for all threads to finish
+		for (Future<?> future : futures) {
+			try {
+				//wait for the execution (return value is null and is not used)
+				future.get();
+			}
+			catch (ExecutionException e) {
+				throw new IllegalStateException("The execution of a thread failed.", e);
+			}
+		}
+	}
+	
+	@VisibleForTesting
+	/*private*/ static int[] getThreadTasks(int tasks, int threads) {
+		int[] splitToThreads = splitToThreads(tasks, threads);
+		int[] summed = new int[threads + 1];
+		summed[0] = 0;
+		for (int i = 0; i < threads; i++) {
+			summed[i + 1] = summed[i] + splitToThreads[i];
+		}
+		return summed;
+	}
+	@VisibleForTesting
+	/*private*/static int[] splitToThreads(int tasks, int threads) {
+		int[] tasksPerThread = new int[threads];
+		for (int i = 0; i < threads; i++) {
+			tasksPerThread[i] = tasks / threads;
+		}
+		for (int i = 0; i < tasks % threads; i++) {
+			tasksPerThread[i]++;
+		}
+		return tasksPerThread;
+	}
+	
 	public DNA getBestDNA() {
 		return bestDNA;
 	}
@@ -448,7 +578,7 @@ public class GeneticOptimizer {
 	}
 	
 	@VisibleForTesting
-	/*public*/ void setElites(int elites) {
+	void setElites(int elites) {
 		this.elites = elites;
 	}
 	public GeneticOptimizerProblem getProblem() {
@@ -465,5 +595,17 @@ public class GeneticOptimizer {
 	
 	public int getGeneration() {
 		return generation;
+	}
+	
+	public int getUsedThreads() {
+		return usedThreads;
+	}
+	
+	public boolean isMultiThreaded() {
+		return usedThreads > 1;
+	}
+	
+	public DoubleProperty getProgressProperty() {
+		return progressProperty;
 	}
 }
