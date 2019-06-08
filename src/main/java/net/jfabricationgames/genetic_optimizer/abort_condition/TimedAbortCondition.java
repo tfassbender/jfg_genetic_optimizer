@@ -7,6 +7,14 @@ public class TimedAbortCondition implements AbortCondition {
 	private long optimizationTime;
 	
 	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public TimedAbortCondition() {
+		
+	}
+	
+	/**
 	 * A timed condition that aborts when the optimization time is up.
 	 * 
 	 * @param optimizationTime

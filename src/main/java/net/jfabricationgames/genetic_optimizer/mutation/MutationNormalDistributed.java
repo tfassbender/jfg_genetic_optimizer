@@ -17,6 +17,14 @@ public class MutationNormalDistributed implements Mutation {
 	private double expectedValue;
 	private double standardDeviation;
 	
+	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public MutationNormalDistributed() {
+		
+	}
+	
 	public MutationNormalDistributed(double mutationRate, double maxMutatedFieldsPropotion, double maxValue, double minValue, double expectedValue,
 			double standardDeviation) {
 		this.mutationRate = mutationRate;

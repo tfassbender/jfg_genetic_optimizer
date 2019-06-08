@@ -11,6 +11,14 @@ public class HeredityRandom implements Heredity {
 	private double probabilityFather;
 	
 	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public HeredityRandom() {
+		
+	}
+	
+	/**
 	 * Generate a new Heredity that is based on a random choosing of father or mother chromosoms.
 	 * 
 	 * @param proabilityFather

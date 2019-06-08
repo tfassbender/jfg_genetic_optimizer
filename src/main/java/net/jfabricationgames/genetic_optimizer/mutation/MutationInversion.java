@@ -15,6 +15,13 @@ public class MutationInversion implements Mutation {
 	private int rangeSize;
 	private double maxValue;
 	
+	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public MutationInversion() {
+		
+	}
 	public MutationInversion(double mutationRate, int rangeSize, double maxValue) {
 		this.mutationRate = mutationRate;
 		this.rangeSize = rangeSize;

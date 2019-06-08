@@ -16,6 +16,14 @@ public class MutationReptation implements Mutation {
 	private int reptationLengthMax;
 	private double frontToBackProbability;
 	
+	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public MutationReptation() {
+		
+	}
+	
 	public MutationReptation(double mutationRate, int reptationLengthMin, int reptationLengthMax, double frontToBackProbability) {
 		this.mutationRate = mutationRate;
 		this.reptationLengthMin = reptationLengthMin;

@@ -14,6 +14,14 @@ public class MutationScramble implements Mutation {
 	private double mutationRate;
 	private int maxSwaps;
 	
+	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public MutationScramble() {
+		
+	}
+	
 	public MutationScramble(double mutationRate, int maxSwaps) {
 		this.mutationRate = mutationRate;
 		this.maxSwaps = maxSwaps;

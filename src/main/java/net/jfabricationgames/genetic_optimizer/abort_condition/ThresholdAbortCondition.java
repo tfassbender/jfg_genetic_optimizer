@@ -11,6 +11,14 @@ public class ThresholdAbortCondition implements AbortCondition {
 	private boolean initialFitnessSet;
 	
 	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public ThresholdAbortCondition() {
+		
+	}
+	
+	/**
 	 * An abort condition that aborts the optimization as soon as the best fitness reaches a threshold.
 	 * 
 	 * @param threshold

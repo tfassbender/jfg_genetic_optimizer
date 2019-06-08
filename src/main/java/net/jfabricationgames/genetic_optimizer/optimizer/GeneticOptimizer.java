@@ -72,6 +72,13 @@ public class GeneticOptimizer {
 	private DNA bestDNA;
 	
 	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public GeneticOptimizer() {
+		
+	}
+	/**
 	 * @param problem
 	 *        A wrapper implementation for the problem that calculates the fitness of a DNA.
 	 * 

@@ -7,6 +7,13 @@ public class GenerationCountAbortCondition implements AbortCondition {
 	private int maxGeneration;
 	
 	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public GenerationCountAbortCondition() {
+		
+	}
+	/**
 	 * An abort condition that aborts when the current generation reaches a user-chosen count.
 	 * 
 	 * @param maxGeneration
