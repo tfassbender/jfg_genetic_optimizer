@@ -37,7 +37,7 @@ public class MutationReptation implements Mutation {
 			int n = dna.getLength();
 			int k = (int) (getRandomNumber() * (getReptationLengthMax() - getReptationLengthMin()) + getReptationLengthMin());
 			
-			double[] dnaCode = dna.getDNACode();
+			double[] dnaCode = dna.getDnaCode();
 			double[] tmp = new double[k];
 			if (getRandomNumber() < frontToBackProbability) {
 				//move k DNA-Parts from the front of the DNA to the back
@@ -65,13 +65,31 @@ public class MutationReptation implements Mutation {
 		return ThreadLocalRandom.current().nextDouble();
 	}
 	
-	@VisibleForTesting
-	/*private*/ int getReptationLengthMin() {
-		return reptationLengthMin;
+	public double getMutationRate() {
+		return mutationRate;
+	}
+	public void setMutationRate(double mutationRate) {
+		this.mutationRate = mutationRate;
 	}
 	
-	@VisibleForTesting
-	/*private*/ int getReptationLengthMax() {
+	public int getReptationLengthMin() {
+		return reptationLengthMin;
+	}
+	public void setReptationLengthMin(int reptationLengthMin) {
+		this.reptationLengthMin = reptationLengthMin;
+	}
+	
+	public int getReptationLengthMax() {
 		return reptationLengthMax;
+	}
+	public void setReptationLengthMax(int reptationLengthMax) {
+		this.reptationLengthMax = reptationLengthMax;
+	}
+	
+	public double getFrontToBackProbability() {
+		return frontToBackProbability;
+	}
+	public void setFrontToBackProbability(double frontToBackProbability) {
+		this.frontToBackProbability = frontToBackProbability;
 	}
 }

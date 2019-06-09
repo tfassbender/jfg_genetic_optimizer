@@ -51,6 +51,6 @@ class GeneticOptimizerBuilderTest {
 		GeneticOptimizer optimizer = builder.build();
 		optimizer.optimize();
 		
-		assertArrayEquals(new double[5], optimizer.getBestDNA().getDNACode(), 1e-5);
+		assertArrayEquals(new double[5], optimizer.getBestDNA().getDnaCode(), 1e-5);
 	}
 }

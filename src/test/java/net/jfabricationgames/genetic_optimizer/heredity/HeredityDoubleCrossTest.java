@@ -24,7 +24,7 @@ class HeredityDoubleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		assertArrayEquals(father.getDNACode(), child.getDNACode(), 1e-8);
+		assertArrayEquals(father.getDnaCode(), child.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -38,13 +38,13 @@ class HeredityDoubleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		double[] childsFirstPartCode = Arrays.copyOfRange(child.getDNACode(), 0, 4);
-		double[] childsSecondPartCode = Arrays.copyOfRange(child.getDNACode(), 4, 8);
-		double[] childsLastPartCode = Arrays.copyOfRange(child.getDNACode(), 8, 10);
+		double[] childsFirstPartCode = Arrays.copyOfRange(child.getDnaCode(), 0, 4);
+		double[] childsSecondPartCode = Arrays.copyOfRange(child.getDnaCode(), 4, 8);
+		double[] childsLastPartCode = Arrays.copyOfRange(child.getDnaCode(), 8, 10);
 		
-		double[] fathersFirstPartCode = Arrays.copyOfRange(father.getDNACode(), 0, 4);
-		double[] fathersLastPartCode = Arrays.copyOfRange(father.getDNACode(), 8, 10);
-		double[] mothersMiddlePartCode = Arrays.copyOfRange(mother.getDNACode(), 4, 8);
+		double[] fathersFirstPartCode = Arrays.copyOfRange(father.getDnaCode(), 0, 4);
+		double[] fathersLastPartCode = Arrays.copyOfRange(father.getDnaCode(), 8, 10);
+		double[] mothersMiddlePartCode = Arrays.copyOfRange(mother.getDnaCode(), 4, 8);
 		
 		assertArrayEquals(fathersFirstPartCode, childsFirstPartCode, 1e-8);
 		assertArrayEquals(mothersMiddlePartCode, childsSecondPartCode, 1e-8);
@@ -63,7 +63,7 @@ class HeredityDoubleCrossTest {
 		DNA child = heredity.mixDNA(father, mother);
 		
 		//the child's DNA is only the mothers DNA because the two split positions are the same value
-		assertArrayEquals(mother.getDNACode(), child.getDNACode(), 1e-8);
+		assertArrayEquals(mother.getDnaCode(), child.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -78,13 +78,13 @@ class HeredityDoubleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		double[] childsFirstPartCode = Arrays.copyOfRange(child.getDNACode(), 0, 4);
-		double[] childsSecondPartCode = Arrays.copyOfRange(child.getDNACode(), 4, 8);
-		double[] childsLastPartCode = Arrays.copyOfRange(child.getDNACode(), 8, 10);
+		double[] childsFirstPartCode = Arrays.copyOfRange(child.getDnaCode(), 0, 4);
+		double[] childsSecondPartCode = Arrays.copyOfRange(child.getDnaCode(), 4, 8);
+		double[] childsLastPartCode = Arrays.copyOfRange(child.getDnaCode(), 8, 10);
 		
-		double[] fathersFirstPartCode = Arrays.copyOfRange(father.getDNACode(), 0, 4);
-		double[] fathersLastPartCode = Arrays.copyOfRange(father.getDNACode(), 8, 10);
-		double[] mothersMiddlePartCode = Arrays.copyOfRange(mother.getDNACode(), 4, 8);
+		double[] fathersFirstPartCode = Arrays.copyOfRange(father.getDnaCode(), 0, 4);
+		double[] fathersLastPartCode = Arrays.copyOfRange(father.getDnaCode(), 8, 10);
+		double[] mothersMiddlePartCode = Arrays.copyOfRange(mother.getDnaCode(), 4, 8);
 		
 		assertArrayEquals(fathersFirstPartCode, childsFirstPartCode, 1e-8);
 		assertArrayEquals(mothersMiddlePartCode, childsSecondPartCode, 1e-8);

@@ -29,14 +29,14 @@ class MutationInversionTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
 	public void testInvertLastPart_withRangeBiggerThanLengthOfDna() {
 		DNA dna = new DNA(10);
 		
-		double[] dnaCode = dna.getDNACode();
+		double[] dnaCode = dna.getDnaCode();
 		dnaCode[7] = 5;
 		dnaCode[8] = 6;
 		dnaCode[9] = 9;
@@ -52,14 +52,14 @@ class MutationInversionTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
 	public void testWrongValueInDnaCode_chromosomeValueBiggerThanMaxRange_problemShouldBeIgnoredAndWrongValueShouldBeAddedToDnaCode() {
 		DNA dna = new DNA(1);
 		
-		double[] dnaCode = dna.getDNACode();
+		double[] dnaCode = dna.getDnaCode();
 		dnaCode[0] = 42;
 		
 		MutationInversion mutation = mock(MutationInversion.class);
@@ -73,7 +73,7 @@ class MutationInversionTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -91,7 +91,7 @@ class MutationInversionTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 		verify(mutation, times(1)).getRandomNumber();//getRandomNumber should be called only once to decide whether the DNA should be mutated
 	}
 }

@@ -24,7 +24,7 @@ class HereditySingleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		assertArrayEquals(father.getDNACode(), child.getDNACode(), 1e-8);
+		assertArrayEquals(father.getDnaCode(), child.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -38,11 +38,11 @@ class HereditySingleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		double[] childsFirstHalfCode = Arrays.copyOfRange(child.getDNACode(), 0, 5);
-		double[] childsLastHalfCode = Arrays.copyOfRange(child.getDNACode(), 5, 10);
+		double[] childsFirstHalfCode = Arrays.copyOfRange(child.getDnaCode(), 0, 5);
+		double[] childsLastHalfCode = Arrays.copyOfRange(child.getDnaCode(), 5, 10);
 		
-		double[] fathersFirstHalfCode = Arrays.copyOfRange(father.getDNACode(), 0, 5);
-		double[] mothersLastHalfCode = Arrays.copyOfRange(mother.getDNACode(), 5, 10);
+		double[] fathersFirstHalfCode = Arrays.copyOfRange(father.getDnaCode(), 0, 5);
+		double[] mothersLastHalfCode = Arrays.copyOfRange(mother.getDnaCode(), 5, 10);
 		
 		assertArrayEquals(fathersFirstHalfCode, childsFirstHalfCode, 1e-8);
 		assertArrayEquals(mothersLastHalfCode, childsLastHalfCode, 1e-8);
@@ -59,11 +59,11 @@ class HereditySingleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		double[] childsFirstHalfCode = Arrays.copyOfRange(child.getDNACode(), 0, 5);
-		double[] childsLastHalfCode = Arrays.copyOfRange(child.getDNACode(), 5, 10);
+		double[] childsFirstHalfCode = Arrays.copyOfRange(child.getDnaCode(), 0, 5);
+		double[] childsLastHalfCode = Arrays.copyOfRange(child.getDnaCode(), 5, 10);
 		
-		double[] mothersFirstHalfCode = Arrays.copyOfRange(mother.getDNACode(), 0, 5);
-		double[] fathersLastHalfCode = Arrays.copyOfRange(father.getDNACode(), 5, 10);
+		double[] mothersFirstHalfCode = Arrays.copyOfRange(mother.getDnaCode(), 0, 5);
+		double[] fathersLastHalfCode = Arrays.copyOfRange(father.getDnaCode(), 5, 10);
 		
 		assertArrayEquals(childsFirstHalfCode, mothersFirstHalfCode, 1e-8);
 		assertArrayEquals(childsLastHalfCode, fathersLastHalfCode, 1e-8);

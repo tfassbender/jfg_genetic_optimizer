@@ -11,6 +11,13 @@ public class DNA implements Comparable<DNA> {
 	private double fitness;
 	private double[] dnaCode;
 	
+	/**
+	 * DefaultConstructor for XML-Encoder. DO NOT USE.
+	 */
+	@Deprecated
+	public DNA() {
+		
+	}
 	public DNA(int length) {
 		this.dnaCode = new double[length];
 	}
@@ -47,8 +54,11 @@ public class DNA implements Comparable<DNA> {
 		return dnaCode.length;
 	}
 	
-	public double[] getDNACode() {
+	public double[] getDnaCode() {
 		return dnaCode;
+	}
+	public void setDnaCode(double[] dnaCode) {
+		this.dnaCode = dnaCode;
 	}
 	
 	public double getFitness() {

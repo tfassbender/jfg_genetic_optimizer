@@ -23,7 +23,7 @@ class HeredityRandomTest {
 		
 		DNA child = heredityFatherOnly.mixDNA(father, mother);
 		
-		assertArrayEquals(father.getDNACode(), child.getDNACode(), 1e-8);
+		assertArrayEquals(father.getDnaCode(), child.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -36,7 +36,7 @@ class HeredityRandomTest {
 		
 		DNA child = heredityMotherOnly.mixDNA(father, mother);
 		
-		assertArrayEquals(mother.getDNACode(), child.getDNACode(), 1e-8);
+		assertArrayEquals(mother.getDnaCode(), child.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -52,11 +52,11 @@ class HeredityRandomTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		double[] childsFirstHalfCode = Arrays.copyOfRange(child.getDNACode(), 0, 5);
-		double[] childsLastHalfCode = Arrays.copyOfRange(child.getDNACode(), 5, 10);
+		double[] childsFirstHalfCode = Arrays.copyOfRange(child.getDnaCode(), 0, 5);
+		double[] childsLastHalfCode = Arrays.copyOfRange(child.getDnaCode(), 5, 10);
 		
-		double[] fathersFirstHalfCode = Arrays.copyOfRange(father.getDNACode(), 0, 5);
-		double[] mothersLastHalfCode = Arrays.copyOfRange(mother.getDNACode(), 5, 10);
+		double[] fathersFirstHalfCode = Arrays.copyOfRange(father.getDnaCode(), 0, 5);
+		double[] mothersLastHalfCode = Arrays.copyOfRange(mother.getDnaCode(), 5, 10);
 		
 		assertArrayEquals(childsFirstHalfCode, fathersFirstHalfCode, 1e-8);
 		assertArrayEquals(childsLastHalfCode, mothersLastHalfCode, 1e-8);

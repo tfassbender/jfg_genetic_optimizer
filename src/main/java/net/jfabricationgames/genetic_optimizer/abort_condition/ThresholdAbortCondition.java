@@ -73,8 +73,28 @@ public class ThresholdAbortCondition implements AbortCondition {
 	public double getThreshold() {
 		return threshold;
 	}
+	public void setThreshold(double threshold) {
+		this.threshold = threshold;
+	}
 	
 	public boolean isUpperLimit() {
 		return upperLimit;
+	}
+	public void setUpperLimit(boolean upperLimit) {
+		this.upperLimit = upperLimit;
+	}
+	
+	public double getInitialFitness() {
+		return initialFitness;
+	}
+	public void setInitialFitness(double initialFitness) {
+		this.initialFitness = initialFitness;
+	}
+	
+	public boolean isInitialFitnessSet() {
+		return initialFitnessSet;
+	}
+	public void setInitialFitnessSet(boolean initialFitnessSet) {
+		this.initialFitnessSet = initialFitnessSet;
 	}
 }

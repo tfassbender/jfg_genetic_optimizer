@@ -47,4 +47,7 @@ public class TimedAbortCondition implements AbortCondition {
 	public long getOptimizationTime() {
 		return optimizationTime;
 	}
+	public void setOptimizationTime(long optimizationTime) {
+		this.optimizationTime = optimizationTime;
+	}
 }

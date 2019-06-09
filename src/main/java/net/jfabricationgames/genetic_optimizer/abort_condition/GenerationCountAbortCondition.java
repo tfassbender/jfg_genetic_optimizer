@@ -42,4 +42,11 @@ public class GenerationCountAbortCondition implements AbortCondition {
 	public String toString() {
 		return "GenerationCountAbortCondition [maxGeneration=" + maxGeneration + "]";
 	}
+	
+	public int getMaxGeneration() {
+		return maxGeneration;
+	}
+	public void setMaxGeneration(int maxGeneration) {
+		this.maxGeneration = maxGeneration;
+	}
 }

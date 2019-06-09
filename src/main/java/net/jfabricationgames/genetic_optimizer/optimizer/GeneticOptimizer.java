@@ -615,4 +615,75 @@ public class GeneticOptimizer {
 	public DoubleProperty getProgressProperty() {
 		return progressProperty;
 	}
+	
+	public Selector getSelector() {
+		return selector;
+	}
+	public void setSelector(Selector selector) {
+		this.selector = selector;
+	}
+	
+	public SelectionPressure getSelectionPressure() {
+		return selectionPressure;
+	}
+	public void setSelectionPressure(SelectionPressure selectionPressure) {
+		this.selectionPressure = selectionPressure;
+	}
+	
+	public List<DNA> getRootPopulation() {
+		return rootPopulation;
+	}
+	public void setRootPopulation(List<DNA> rootPopulation) {
+		this.rootPopulation = rootPopulation;
+	}
+	
+	public int getPopulationSize() {
+		return populationSize;
+	}
+	public void setPopulationSize(int populationSize) {
+		this.populationSize = populationSize;
+	}
+	
+	public boolean isUseLocalElitism() {
+		return useLocalElitism;
+	}
+	public void setUseLocalElitism(boolean useLocalElitism) {
+		this.useLocalElitism = useLocalElitism;
+	}
+	
+	public ExecutorService getExecutorService() {
+		return executorService;
+	}
+	public void setExecutorService(ExecutorService executorService) {
+		this.executorService = executorService;
+	}
+	
+	public AbortCondition getAbortCondition() {
+		return abortCondition;
+	}
+	public void setAbortCondition(AbortCondition abortCondition) {
+		this.abortCondition = abortCondition;
+	}
+	
+	public int getElites() {
+		return elites;
+	}
+	public void setProblem(GeneticOptimizerProblem problem) {
+		this.problem = problem;
+	}
+	public void setHeredity(Heredity heredity) {
+		this.heredity = heredity;
+	}
+	public void setMutations(List<Mutation> mutations) {
+		this.mutations = mutations;
+	}
+	public void setUsedThreads(int usedThreads) {
+		this.usedThreads = usedThreads;
+	}
+	public void setProgressProperty(DoubleProperty progressProperty) {
+		this.progressProperty = progressProperty;
+	}
+	public void setGeneration(int generation) {
+		this.generation = generation;
+	}
 }

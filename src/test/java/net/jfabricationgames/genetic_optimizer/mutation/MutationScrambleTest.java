@@ -32,7 +32,7 @@ class MutationScrambleTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -53,7 +53,7 @@ class MutationScrambleTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -74,7 +74,7 @@ class MutationScrambleTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ class MutationScrambleTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 	}
 	
 	@Test
@@ -116,7 +116,7 @@ class MutationScrambleTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(expected, dna.getDNACode(), 1e-8);
+		assertArrayEquals(expected, dna.getDnaCode(), 1e-8);
 		verify(mutation, times(1)).getRandomNumber();
 	}
 	
@@ -124,7 +124,7 @@ class MutationScrambleTest {
 		DNA dna = new DNA(10);
 		
 		//initialize the DNA code with their indices
-		double[] dnaCode = dna.getDNACode();
+		double[] dnaCode = dna.getDnaCode();
 		for (int i = 0; i < dnaCode.length; i++) {
 			dnaCode[i] = i;
 		}

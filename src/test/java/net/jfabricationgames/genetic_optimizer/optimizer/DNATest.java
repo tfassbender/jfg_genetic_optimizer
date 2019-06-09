@@ -10,7 +10,7 @@ class DNATest {
 	@Test
 	void testGenerateRandomDNA() {
 		DNA dna = DNA.generateRandomDNA(1000, 10);
-		double[] dnaCode = dna.getDNACode();
+		double[] dnaCode = dna.getDnaCode();
 		int sum = 0;
 		for (int i = 0; i < dnaCode.length; i++) {
 			sum += dnaCode[i];
@@ -28,6 +28,6 @@ class DNATest {
 		DNA dna = DNA.generateRandomDNA(100, 10);
 		DNA dna2 = new DNA(100);
 		dna.copyTo(dna2);
-		assertArrayEquals(dna.getDNACode(), dna2.getDNACode(), 1e-8);
+		assertArrayEquals(dna.getDnaCode(), dna2.getDnaCode(), 1e-8);
 	}
 }

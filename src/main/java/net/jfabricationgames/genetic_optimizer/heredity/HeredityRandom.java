@@ -31,9 +31,9 @@ public class HeredityRandom implements Heredity {
 	@Override
 	public DNA mixDNA(DNA father, DNA mother) {
 		DNA child = new DNA(father.getLength());
-		double[] dnaCode = child.getDNACode();
-		double[] fathersCode = father.getDNACode();
-		double[] mothersCode = mother.getDNACode();
+		double[] dnaCode = child.getDnaCode();
+		double[] fathersCode = father.getDnaCode();
+		double[] mothersCode = mother.getDnaCode();
 		
 		for (int i = 0; i < father.getLength(); i++) {
 			if (getRandomNumber() > probabilityFather) {
@@ -59,5 +59,8 @@ public class HeredityRandom implements Heredity {
 	
 	public double getProbabilityFather() {
 		return probabilityFather;
+	}
+	public void setProbabilityFather(double probabilityFather) {
+		this.probabilityFather = probabilityFather;
 	}
 }

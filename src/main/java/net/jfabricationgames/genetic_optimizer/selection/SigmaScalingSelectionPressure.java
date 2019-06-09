@@ -103,4 +103,18 @@ public class SigmaScalingSelectionPressure implements SelectionPressure {
 	public String toString() {
 		return "SigmaScalingSelectionPressure [beta=" + beta + ", betaFunction=" + betaFunction + "]";
 	}
+	
+	public double getBeta() {
+		return beta;
+	}
+	public void setBeta(double beta) {
+		this.beta = beta;
+	}
+	
+	public SelectionPressureParameterFunction getBetaFunction() {
+		return betaFunction;
+	}
+	public void setBetaFunction(SelectionPressureParameterFunction betaFunction) {
+		this.betaFunction = betaFunction;
+	}
 }

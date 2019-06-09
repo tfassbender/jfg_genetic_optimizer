@@ -106,4 +106,32 @@ public class LinearDynamicScalingSelectionPressure implements SelectionPressure 
 		return "LinearDynamicScalingSelectionPressure [alpha=" + alpha + ", beta=" + beta + ", alphaFunction=" + alphaFunction + ", betaFunction="
 				+ betaFunction + "]";
 	}
+	
+	public double getAlpha() {
+		return alpha;
+	}
+	public void setAlpha(double alpha) {
+		this.alpha = alpha;
+	}
+	
+	public double getBeta() {
+		return beta;
+	}
+	public void setBeta(double beta) {
+		this.beta = beta;
+	}
+	
+	public SelectionPressureParameterFunction getAlphaFunction() {
+		return alphaFunction;
+	}
+	public void setAlphaFunction(SelectionPressureParameterFunction alphaFunction) {
+		this.alphaFunction = alphaFunction;
+	}
+	
+	public SelectionPressureParameterFunction getBetaFunction() {
+		return betaFunction;
+	}
+	public void setBetaFunction(SelectionPressureParameterFunction betaFunction) {
+		this.betaFunction = betaFunction;
+	}
 }

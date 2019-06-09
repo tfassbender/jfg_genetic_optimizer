@@ -36,7 +36,7 @@ public class MutationScramble implements Mutation {
 			int dist = Math.abs(k1 - k2);
 			int swaps = (int) (getRandomNumber() * getMaxSwaps());
 			
-			double[] dnaCode = dna.getDNACode();
+			double[] dnaCode = dna.getDnaCode();
 			int minK = Math.min(k1, k2);
 			for (int i = 0; i < swaps; i++) {
 				int d1 = (int) (getRandomNumber() * dist) + minK;
@@ -59,8 +59,17 @@ public class MutationScramble implements Mutation {
 		return ThreadLocalRandom.current().nextDouble();
 	}
 	
-	@VisibleForTesting
-	/*private*/ int getMaxSwaps() {
+	public double getMutationRate() {
+		return mutationRate;
+	}
+	public void setMutationRate(double mutationRate) {
+		this.mutationRate = mutationRate;
+	}
+	
+	public int getMaxSwaps() {
 		return maxSwaps;
+	}
+	public void setMaxSwaps(int maxSwaps) {
+		this.maxSwaps = maxSwaps;
 	}
 }

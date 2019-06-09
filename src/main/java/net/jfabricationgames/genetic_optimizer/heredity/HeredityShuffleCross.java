@@ -24,8 +24,8 @@ public class HeredityShuffleCross implements Heredity {
 		//copy the arrays because it's faster than in place changes
 		fatherChromosomes = new double[n];
 		motherChromosomes = new double[n];
-		System.arraycopy(father.getDNACode(), 0, fatherChromosomes, 0, n);
-		System.arraycopy(mother.getDNACode(), 0, motherChromosomes, 0, n);
+		System.arraycopy(father.getDnaCode(), 0, fatherChromosomes, 0, n);
+		System.arraycopy(mother.getDnaCode(), 0, motherChromosomes, 0, n);
 		
 		//generate the indices to shuffle the parent arrays
 		int[] shuffleIndices = generateShuffleIndices(n);

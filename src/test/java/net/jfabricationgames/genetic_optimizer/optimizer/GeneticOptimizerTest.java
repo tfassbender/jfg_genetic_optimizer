@@ -37,10 +37,10 @@ class GeneticOptimizerTest {
 		DNA optimalPart1 = new DNA(problem.getLength());
 		DNA optimalPart2 = new DNA(problem.getLength());
 		for (int i = 5; i < 10; i++) {
-			optimalPart1.getDNACode()[i] = 1;//only the first half is optimal
+			optimalPart1.getDnaCode()[i] = 1;//only the first half is optimal
 		}
 		for (int i = 0; i < 5; i++) {
-			optimalPart2.getDNACode()[i] = 1;//only the second half is optimal
+			optimalPart2.getDnaCode()[i] = 1;//only the second half is optimal
 		}
 		InitialDNAGenerator generator = generateDnaGeneratorThatReturnsSpecificDnaAt(new int[] {3, 4}, new DNA[] {optimalPart1, optimalPart2},
 				problem.getLength(), 100);
@@ -50,7 +50,7 @@ class GeneticOptimizerTest {
 		Mutation mutation = (dna) -> {
 			for (int i = 0; i < dna.getLength(); i++) {
 				if (Math.random() < 0.01) {//1% chance of lowering the current genome to 0
-					dna.getDNACode()[i] = 0;
+					dna.getDnaCode()[i] = 0;
 				}
 			}
 		};
@@ -88,10 +88,10 @@ class GeneticOptimizerTest {
 		DNA optimalPart1 = new DNA(maximizationProblem.getLength());
 		DNA optimalPart2 = new DNA(maximizationProblem.getLength());
 		for (int i = 5; i < 10; i++) {
-			optimalPart1.getDNACode()[i] = 1;//only the first half is optimal
+			optimalPart1.getDnaCode()[i] = 1;//only the first half is optimal
 		}
 		for (int i = 0; i < 5; i++) {
-			optimalPart2.getDNACode()[i] = 1;//only the second half is optimal
+			optimalPart2.getDnaCode()[i] = 1;//only the second half is optimal
 		}
 		InitialDNAGenerator generator = generateDnaGeneratorThatReturnsSpecificDnaAt(new int[] {3, 4}, new DNA[] {optimalPart1, optimalPart2},
 				maximizationProblem.getLength(), 100);
@@ -101,7 +101,7 @@ class GeneticOptimizerTest {
 		Mutation mutation = (dna) -> {
 			for (int i = 0; i < dna.getLength(); i++) {
 				if (Math.random() < 0.01) {//1% chance of lowering the current genome to 0
-					dna.getDNACode()[i] = 0;
+					dna.getDnaCode()[i] = 0;
 				}
 			}
 		};
@@ -129,7 +129,7 @@ class GeneticOptimizerTest {
 		InitialDNAGenerator generator = (size) -> {
 			DNA dna = new DNA(size);
 			for (int i = 0; i < size; i++) {
-				dna.getDNACode()[i] = Math.random() + 1;
+				dna.getDnaCode()[i] = Math.random() + 1;
 			}
 			return dna;
 		};
@@ -139,7 +139,7 @@ class GeneticOptimizerTest {
 		Mutation mutation = (dna) -> {
 			for (int i = 0; i < dna.getLength(); i++) {
 				if (Math.random() < 0.05) {//5% chance of lowering the current genome to 0
-					dna.getDNACode()[i] = 0;
+					dna.getDnaCode()[i] = 0;
 				}
 			}
 		};
@@ -165,7 +165,7 @@ class GeneticOptimizerTest {
 		
 		//mark each initial population with a specific genome
 		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42d;
+			initialPopulation.get(i).getDnaCode()[0] = 42d;
 		}
 		
 		Heredity heredity = mock(Heredity.class);
@@ -182,11 +182,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
-		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[1].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(42d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDnaCode()[0], 1e-8);
+		assertEquals(42d, population[1].getDnaCode()[0], 1e-8);
+		assertEquals(42d, population[2].getDnaCode()[0], 1e-8);
+		assertEquals(42d, population[3].getDnaCode()[0], 1e-8);
+		assertEquals(42d, population[4].getDnaCode()[0], 1e-8);
 	}
 	
 	@Test
@@ -199,7 +199,7 @@ class GeneticOptimizerTest {
 		
 		//mark each initial population with a specific genome
 		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42d + i;
+			initialPopulation.get(i).getDnaCode()[0] = 42d + i;
 		}
 		
 		Heredity heredity = mock(Heredity.class);
@@ -217,11 +217,11 @@ class GeneticOptimizerTest {
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
 		//the DNA with the lowest fitness is the first in the population because the optimizer minimizes by default
-		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
-		assertEquals(44d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(45d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(46d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDnaCode()[0], 1e-8);
+		assertEquals(43d, population[1].getDnaCode()[0], 1e-8);
+		assertEquals(44d, population[2].getDnaCode()[0], 1e-8);
+		assertEquals(45d, population[3].getDnaCode()[0], 1e-8);
+		assertEquals(46d, population[4].getDnaCode()[0], 1e-8);
 	}
 	
 	@Test
@@ -234,7 +234,7 @@ class GeneticOptimizerTest {
 		
 		//mark each initial population with a specific genome
 		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42d + i;
+			initialPopulation.get(i).getDnaCode()[0] = 42d + i;
 		}
 		
 		Heredity heredity = mock(Heredity.class);
@@ -252,11 +252,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
-		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
-		assertEquals(44d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(45d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(46d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDnaCode()[0], 1e-8);
+		assertEquals(43d, population[1].getDnaCode()[0], 1e-8);
+		assertEquals(44d, population[2].getDnaCode()[0], 1e-8);
+		assertEquals(45d, population[3].getDnaCode()[0], 1e-8);
+		assertEquals(46d, population[4].getDnaCode()[0], 1e-8);
 	}
 	
 	@Test
@@ -268,7 +268,7 @@ class GeneticOptimizerTest {
 		
 		//mark each initial population with a specific genome
 		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42d + i;
+			initialPopulation.get(i).getDnaCode()[0] = 42d + i;
 		}
 		
 		Heredity heredity = mock(Heredity.class);
@@ -287,7 +287,7 @@ class GeneticOptimizerTest {
 			@Override
 			public DNA answer(InvocationOnMock invocation) throws Throwable {
 				DNA dna = new DNA(5);
-				dna.getDNACode()[0] = 3;//return a chromosome with a specific first genome to identify it
+				dna.getDnaCode()[0] = 3;//return a chromosome with a specific first genome to identify it
 				return dna;
 			}
 		});
@@ -298,11 +298,11 @@ class GeneticOptimizerTest {
 		
 		//ASSERT
 		//the population array is filled with the two initial populations and three generated chromsomes
-		assertEquals(42d, population[0].getDNACode()[0], 1e-8);
-		assertEquals(43d, population[1].getDNACode()[0], 1e-8);
-		assertEquals(3d, population[2].getDNACode()[0], 1e-8);
-		assertEquals(3d, population[3].getDNACode()[0], 1e-8);
-		assertEquals(3d, population[4].getDNACode()[0], 1e-8);
+		assertEquals(42d, population[0].getDnaCode()[0], 1e-8);
+		assertEquals(43d, population[1].getDnaCode()[0], 1e-8);
+		assertEquals(3d, population[2].getDnaCode()[0], 1e-8);
+		assertEquals(3d, population[3].getDnaCode()[0], 1e-8);
+		assertEquals(3d, population[4].getDnaCode()[0], 1e-8);
 	}
 	
 	@Test
@@ -415,7 +415,7 @@ class GeneticOptimizerTest {
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		//set some values to the genomes of the initial population to make them sortable (using the sum of genomes as fitness)
 		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42 + i;
+			initialPopulation.get(i).getDnaCode()[0] = 42 + i;
 		}
 		//use a Heredity that just return the father chromosome (because something needs to be returned)
 		Heredity heredity = generateHeredityThatReturnsFatherCromosome();
@@ -462,7 +462,7 @@ class GeneticOptimizerTest {
 		List<DNA> initialPopulation = generateInitialPopulation(5, 5);
 		//set some values to the genomes of the initial population to make them sortable (using the sum of genomes as fitness)
 		for (int i = 0; i < initialPopulation.size(); i++) {
-			initialPopulation.get(i).getDNACode()[0] = 42 + i;
+			initialPopulation.get(i).getDnaCode()[0] = 42 + i;
 		}
 		//use a Heredity that just return the father chromosome (because something needs to be returned)
 		Heredity heredity = generateHeredityThatReturnsFatherCromosome();
@@ -755,7 +755,7 @@ class GeneticOptimizerTest {
 			@Override
 			public Double answer(InvocationOnMock invocation) throws Throwable {
 				DNA dna = invocation.getArgument(0);
-				double[] chromosome = dna.getDNACode();
+				double[] chromosome = dna.getDnaCode();
 				double sum = 0;
 				for (double d : chromosome) {
 					sum += d;
@@ -806,8 +806,8 @@ class GeneticOptimizerTest {
 				DNA father = invocation.getArgument(0);
 				DNA mother = invocation.getArgument(1);
 				DNA dna = new DNA(father.getLength());
-				double[][] chromosomes = new double[][] {father.getDNACode(), mother.getDNACode()};
-				double[] dnaCode = dna.getDNACode();
+				double[][] chromosomes = new double[][] {father.getDnaCode(), mother.getDnaCode()};
+				double[] dnaCode = dna.getDnaCode();
 				for (int i = 0; i < father.getLength(); i++) {
 					int selection;
 					if (Math.random() < probabilityFather) {

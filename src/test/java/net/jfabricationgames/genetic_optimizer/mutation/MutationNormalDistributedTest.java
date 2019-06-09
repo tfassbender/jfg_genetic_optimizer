@@ -33,7 +33,7 @@ class MutationNormalDistributedTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(new double[] {1, 0, 0, 0, 0}, dna.getDNACode(), EPSILON);
+		assertArrayEquals(new double[] {1, 0, 0, 0, 0}, dna.getDnaCode(), EPSILON);
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ class MutationNormalDistributedTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(new double[] {1.5, 0.5, 1}, dna.getDNACode(), EPSILON);
+		assertArrayEquals(new double[] {1.5, 0.5, 1}, dna.getDnaCode(), EPSILON);
 	}
 	
 	@Test
@@ -77,6 +77,6 @@ class MutationNormalDistributedTest {
 		
 		mutation.mutate(dna);
 		
-		assertArrayEquals(new double[] {2, 0, 1}, dna.getDNACode(), EPSILON);
+		assertArrayEquals(new double[] {2, 0, 1}, dna.getDnaCode(), EPSILON);
 	}
 }

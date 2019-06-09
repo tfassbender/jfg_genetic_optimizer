@@ -26,9 +26,9 @@ public class HereditySingleCross implements Heredity {
 			second = father;
 		}
 		
-		double[] childsDnaCode = child.getDNACode();
-		double[] firstDnaCode = first.getDNACode();
-		double[] secondDnaCode = second.getDNACode();
+		double[] childsDnaCode = child.getDnaCode();
+		double[] firstDnaCode = first.getDnaCode();
+		double[] secondDnaCode = second.getDnaCode();
 		for (int i = 0; i < splitAt; i++) {
 			childsDnaCode[i] = firstDnaCode[i];
 		}

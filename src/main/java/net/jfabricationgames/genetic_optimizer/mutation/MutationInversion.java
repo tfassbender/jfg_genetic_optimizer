@@ -38,7 +38,7 @@ public class MutationInversion implements Mutation {
 				k2 = dna.getLength() - 1;
 			}
 			
-			double[] dnaCode = dna.getDNACode();
+			double[] dnaCode = dna.getDnaCode();
 			for (int i = k1; i <= k2; i++) {
 				dnaCode[i] = getMaxValue() - dnaCode[i];
 			}
@@ -55,13 +55,24 @@ public class MutationInversion implements Mutation {
 		return ThreadLocalRandom.current().nextDouble();
 	}
 	
-	@VisibleForTesting
-	/*private*/ int getRangeSize() {
-		return rangeSize;
+	public double getMutationRate() {
+		return mutationRate;
+	}
+	public void setMutationRate(double mutationRate) {
+		this.mutationRate = mutationRate;
 	}
 	
-	@VisibleForTesting
-	/*private*/ double getMaxValue() {
+	public int getRangeSize() {
+		return rangeSize;
+	}
+	public void setRangeSize(int rangeSize) {
+		this.rangeSize = rangeSize;
+	}
+	
+	public double getMaxValue() {
 		return maxValue;
+	}
+	public void setMaxValue(double maxValue) {
+		this.maxValue = maxValue;
 	}
 }

@@ -51,7 +51,7 @@ public class MutationNormalDistributed implements Mutation {
 				double change = getExpectedValue() + getGaussianRandomNumber() * getStandardDeviation();
 				
 				//add the change to the dna
-				double[] dnaCode = dna.getDNACode();
+				double[] dnaCode = dna.getDnaCode();
 				dnaCode[fieldIndex] += change;
 				
 				//check whether the new value is within the allowed range
@@ -75,28 +75,45 @@ public class MutationNormalDistributed implements Mutation {
 		return ThreadLocalRandom.current().nextGaussian();
 	}
 	
-	@VisibleForTesting
-	/*private*/ double getMaxMutatedFieldsPropotion() {
+	public double getMutationRate() {
+		return mutationRate;
+	}
+	public void setMutationRate(double mutationRate) {
+		this.mutationRate = mutationRate;
+	}
+	
+	public double getMaxMutatedFieldsPropotion() {
 		return maxMutatedFieldsPropotion;
 	}
+	public void setMaxMutatedFieldsPropotion(double maxMutatedFieldsPropotion) {
+		this.maxMutatedFieldsPropotion = maxMutatedFieldsPropotion;
+	}
 	
-	@VisibleForTesting
-	/*private*/ double getMaxValue() {
+	public double getMaxValue() {
 		return maxValue;
 	}
+	public void setMaxValue(double maxValue) {
+		this.maxValue = maxValue;
+	}
 	
-	@VisibleForTesting
-	/*private*/ double getMinValue() {
+	public double getMinValue() {
 		return minValue;
 	}
-	
-	@VisibleForTesting
-	/*private*/ double getExpectedValue() {
-		return expectedValue;
+	public void setMinValue(double minValue) {
+		this.minValue = minValue;
 	}
 	
-	@VisibleForTesting
-	/*private*/ double getStandardDeviation() {
+	public double getExpectedValue() {
+		return expectedValue;
+	}
+	public void setExpectedValue(double expectedValue) {
+		this.expectedValue = expectedValue;
+	}
+	
+	public double getStandardDeviation() {
 		return standardDeviation;
+	}
+	public void setStandardDeviation(double standardDeviation) {
+		this.standardDeviation = standardDeviation;
 	}
 }

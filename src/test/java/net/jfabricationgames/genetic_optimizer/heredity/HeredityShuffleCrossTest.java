@@ -110,7 +110,7 @@ class HeredityShuffleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		assertArrayEquals(father.getDNACode(), child.getDNACode());
+		assertArrayEquals(father.getDnaCode(), child.getDnaCode());
 	}
 	
 	@Test
@@ -125,6 +125,6 @@ class HeredityShuffleCrossTest {
 		
 		DNA child = heredity.mixDNA(father, mother);
 		
-		assertArrayEquals(new double[] {0, 2, 3}, child.getDNACode(), 1e-5);
+		assertArrayEquals(new double[] {0, 2, 3}, child.getDnaCode(), 1e-5);
 	}
 }

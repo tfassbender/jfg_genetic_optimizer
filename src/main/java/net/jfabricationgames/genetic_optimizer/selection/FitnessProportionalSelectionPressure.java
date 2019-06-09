@@ -55,4 +55,11 @@ public class FitnessProportionalSelectionPressure implements SelectionPressure {
 	public String toString() {
 		return "FitnessProportionalSelectionPressure [defaultFitness=" + defaultFitness + "]";
 	}
+	
+	public double getDefaultFitness() {
+		return defaultFitness;
+	}
+	public void setDefaultFitness(double defaultFitness) {
+		this.defaultFitness = defaultFitness;
+	}
 }
