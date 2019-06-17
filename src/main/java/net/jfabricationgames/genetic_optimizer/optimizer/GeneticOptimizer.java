@@ -495,6 +495,24 @@ public class GeneticOptimizer {
 				}
 			}
 			
+			//check whether all positions of the eliteIndividuals array have been filled
+			//otherwise it can cause strange behavior when the fitness of individuals is NaN or Infinity 
+			int fillIndex = -1;
+			for (int i = 0; i < elites; i++) {
+				DNA elite = eliteIndividuals[i];
+				if (elite.getLength() > 0 || (elite.getFitness() != Double.POSITIVE_INFINITY && elite.getFitness() != Double.NEGATIVE_INFINITY)) {
+					//the individual at position i is no dummy
+					fillIndex = i;
+				}
+			}
+			if (fillIndex < elites - 1) {
+				//the array was not completely filled but contains dummy individuals (that will cause strange problems)
+				//-> fill the rest of the array with any individual from the population
+				for (int i = fillIndex + 1; i < elites; i++) {
+					eliteIndividuals[i] = population[i - fillIndex - 1];//just choose the first individuals...
+				}
+			}
+			
 			//add the elites to the next population (append on the end)
 			for (int i = 0; i < elites; i++) {
 				nextPopulation[i + populationSize - elites] = eliteIndividuals[i];

@@ -647,6 +647,110 @@ class GeneticOptimizerTest {
 	}
 	
 	@Test
+	public void testAddElites_allIndividualsFitnessValuesAreNaN() {
+		int populationSize = 5;
+		int dnaLength = 5;
+		int elites = 3;
+		
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(elites).setPopulationSize(populationSize).setMinimize(true);
+		GeneticOptimizer optimizer = builder.build();
+		
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
+		
+		//all individuals have a fitness that is NaN -> none can be chosen as elite
+		double[] definedFitness = new double[] {Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN};
+		
+		for (int i = 0; i < population.length; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+			population[i].setFitness(definedFitness[i]);
+		}
+		
+		//only the elite with a fitness of 42 is added correctly; the left elite spaces are just filled up with the first individuals of the population
+		//that can lead to two times the same individual in the population, but that won't realy matter since there are no more good individuals (with a fitness different from NaN or Infinity)
+		DNA[] expectedNextPopulation = new DNA[] {null, null, population[0], population[1], population[2]};
+		
+		optimizer.addElites(population, nextPopulation);
+		
+		assertArrayEquals(expectedNextPopulation, nextPopulation);
+	}
+	
+	@Test
+	public void testAddElites_allButOneIndividualsFitnessValuesAreNaN() {
+		int populationSize = 5;
+		int dnaLength = 5;
+		int elites = 3;
+		
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(elites).setPopulationSize(populationSize).setMinimize(true);
+		GeneticOptimizer optimizer = builder.build();
+		
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
+		
+		double[] definedFitness = new double[] {Double.NaN, 42, Double.NaN, Double.NaN, Double.NaN};//only one individual has a fitness that is not NaN
+		
+		for (int i = 0; i < population.length; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+			population[i].setFitness(definedFitness[i]);
+		}
+		
+		//only the elite with a fitness of 42 is added correctly; the left elite spaces are just filled up with the first individuals of the population
+		//that can lead to two times the same individual in the population, but that won't realy matter since there are no more good individuals (with a fitness different from NaN or Infinity)
+		DNA[] expectedNextPopulation = new DNA[] {null, null, population[1], population[0], population[1]};
+		
+		optimizer.addElites(population, nextPopulation);
+		
+		assertArrayEquals(expectedNextPopulation, nextPopulation);
+	}
+	
+	@Test
+	public void testAddElites_allButTwoIndividualsFitnessValuesAreNaN() {
+		int populationSize = 5;
+		int dnaLength = 5;
+		int elites = 3;
+		
+		GeneticOptimizerBuilder builder = generateDefaultBuilder();
+		builder.setHeredity(generateHeredityThatReturnsFatherCromosome()).setMutations(new ArrayList<Mutation>(0)).setUseLocalElitism(false)
+				.setElites(elites).setPopulationSize(populationSize).setMinimize(true);
+		GeneticOptimizer optimizer = builder.build();
+		
+		DNA[] population = new DNA[populationSize];
+		DNA[] nextPopulation = new DNA[populationSize];
+		
+		//only two individuals have a fitness that is not NaN or Infinity
+		double[] definedFitness = new double[] {Double.NaN, 42, Double.NaN, 43, Double.POSITIVE_INFINITY};
+		
+		for (int i = 0; i < population.length; i++) {
+			double[] dnaCode = new double[dnaLength];
+			for (int j = 0; j < dnaCode.length; j++) {
+				dnaCode[j] = Math.random();
+			}
+			population[i] = new DNA(dnaCode);
+			population[i].setFitness(definedFitness[i]);
+		}
+		
+		//only the elite with a fitness of 42 is added correctly; the left elite spaces are just filled up with the first individuals of the population
+		//that can lead to two times the same individual in the population, but that won't realy matter since there are no more good individuals (with a fitness different from NaN or Infinity)
+		DNA[] expectedNextPopulation = new DNA[] {null, null, population[1], population[3], population[0]};
+		
+		optimizer.addElites(population, nextPopulation);
+		
+		assertArrayEquals(expectedNextPopulation, nextPopulation);
+	}
+	
+	@Test
 	public void testInterruptThread() {
 		GeneticOptimizerBuilder builder = generateDefaultBuilder();
 		builder.setAbortCondition(new TimedAbortCondition(1000));//run 1 second
