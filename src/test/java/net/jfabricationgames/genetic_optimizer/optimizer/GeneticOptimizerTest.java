@@ -178,7 +178,9 @@ class GeneticOptimizerTest {
 		DNA[] population = new DNA[5];
 		
 		//ACT
+		optimizer.createExecutorService();
 		optimizer.createInitialPopulation(population);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
@@ -212,7 +214,9 @@ class GeneticOptimizerTest {
 		DNA[] population = new DNA[5];
 		
 		//ACT
+		optimizer.createExecutorService();
 		optimizer.createInitialPopulation(population);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
@@ -248,7 +252,9 @@ class GeneticOptimizerTest {
 		DNA[] population = new DNA[5];
 		
 		//ACT
+		optimizer.createExecutorService();
 		optimizer.createInitialPopulation(population);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//the population array is filled with the initial populations (except that the fitness is added)
@@ -277,6 +283,7 @@ class GeneticOptimizerTest {
 		int time = 1000;//1 second
 		
 		GeneticOptimizer optimizer = new GeneticOptimizer(problem, initialPopulation, heredity, mutations, time);
+		optimizer.createExecutorService();
 		optimizer.setBestDNA(new DNA(5));
 		//a population of 5 is requested but only to are given
 		DNA[] population = new DNA[5];
@@ -295,6 +302,7 @@ class GeneticOptimizerTest {
 		
 		//ACT
 		optimizer.createInitialPopulation(population);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//the population array is filled with the two initial populations and three generated chromsomes
@@ -327,7 +335,9 @@ class GeneticOptimizerTest {
 		
 		//ACT
 		//the population array is filled with the generated chromsomes
+		optimizer.createExecutorService();
 		optimizer.createInitialPopulation(population);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//every DNA fitness has to be between 0 (inclusive) and 0.5 (exclusive) because the fitness is the sum of the genomes
@@ -354,6 +364,7 @@ class GeneticOptimizerTest {
 				.setAbortCondition(new TimedAbortCondition(time)).setUsedThreads(2);
 		
 		GeneticOptimizer optimizer = builder.build();
+		optimizer.createExecutorService();
 		optimizer.setBestDNA(new DNA(5));
 		//a population of 50 is requested; all 50 chromosomes are created using the default generator of the DNA class
 		DNA[] population = new DNA[50];
@@ -363,6 +374,7 @@ class GeneticOptimizerTest {
 		//ACT
 		//the population array is filled with the generated chromsomes
 		optimizer.createInitialPopulation(population);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//every DNA fitness has to be between 0 (inclusive) and 0.5 (exclusive) because the fitness is the sum of the genomes
@@ -387,6 +399,7 @@ class GeneticOptimizerTest {
 		int time = 1000;//1 second
 		
 		GeneticOptimizer optimizer = new GeneticOptimizer(problem, initialPopulation, heredity, mutations, time);
+		optimizer.createExecutorService();
 		optimizer.setBestDNA(new DNA(5));//set any DNA to prevent NullPointerException
 		DNA[] population = new DNA[5];
 		//generate an initial population (that is the initial population that was given as parameter)
@@ -397,6 +410,7 @@ class GeneticOptimizerTest {
 		
 		//ACT
 		optimizer.generateNextPopulation(new int[10], population, childs);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//mixDNA is called for every chromosome in the childs array
@@ -429,6 +443,7 @@ class GeneticOptimizerTest {
 		optimizer.setBestDNA(new DNA(5));//set any DNA to prevent NullPointerException
 		DNA[] population = new DNA[5];
 		//generate an initial population (that is the initial population that was given as parameter)
+		optimizer.createExecutorService();
 		optimizer.createInitialPopulation(population);
 		
 		//the space for the generated childs (bigger than the population to test the correct number of generated childs, and method calls)
@@ -436,6 +451,7 @@ class GeneticOptimizerTest {
 		
 		//ACT
 		optimizer.generateNextPopulation(new int[10], population, childs);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//the heredity always returns the father and the mutation does nothing -> the father chromosome is always the same and the childs are all the father chromosome
@@ -475,6 +491,7 @@ class GeneticOptimizerTest {
 		GeneticOptimizerBuilder builder = generateDefaultBuilder().setProblem(problem).setRootPopulation(initialPopulation).setHeredity(heredity)
 				.setMutations(mutations).setAbortCondition(new TimedAbortCondition(time)).setUsedThreads(2);
 		GeneticOptimizer optimizer = builder.build();
+		optimizer.createExecutorService();
 		optimizer.setBestDNA(new DNA(5));//set any DNA to prevent NullPointerException
 		DNA[] population = new DNA[5];
 		//generate an initial population (that is the initial population that was given as parameter)
@@ -485,6 +502,7 @@ class GeneticOptimizerTest {
 		
 		//ACT
 		optimizer.generateNextPopulation(new int[10], population, childs);
+		optimizer.shutdownExecutorService();
 		
 		//ASSERT
 		//the heredity always returns the father and the mutation does nothing -> the father chromosome is always the same and the childs are all the father chromosome
@@ -515,6 +533,7 @@ class GeneticOptimizerTest {
 		int time = 1000;//1 second
 		
 		GeneticOptimizer optimizer = new GeneticOptimizer(problem, initialPopulation, heredity, mutations, time);
+		optimizer.createExecutorService();
 		optimizer.setBestDNA(new DNA(5));//set any DNA to prevent NullPointerException
 		DNA[] population = new DNA[2];
 		optimizer.createInitialPopulation(population);
@@ -531,6 +550,7 @@ class GeneticOptimizerTest {
 		catch (IllegalStateException ise) {
 			fail("The generateChilds method should not have thrown an IllegalStateException.");
 		}
+		optimizer.shutdownExecutorService();
 		assertThrows(IllegalStateException.class, () -> heredity.mixDNA(dna, dna));
 	}
 	
@@ -558,7 +578,9 @@ class GeneticOptimizerTest {
 		int[] selectedReproductionIndividuals = new int[] {0, 1, 0, 2, 0, 0, 1, 2, 4, 3};
 		DNA[] expectedNextPopulation = new DNA[] {population[0], population[0], population[0], population[1], population[4]};
 		
+		optimizer.createExecutorService();
 		optimizer.generateNextPopulation(selectedReproductionIndividuals, population, nextPopulation);
+		optimizer.shutdownExecutorService();
 		
 		assertArrayEquals(expectedNextPopulation, nextPopulation);
 	}
@@ -682,6 +704,7 @@ class GeneticOptimizerTest {
 			};
 		}
 		
+		optimizer.createExecutorService();
 		long startTime = System.currentTimeMillis();
 		try {
 			optimizer.submitAndWait(runnables);
@@ -690,6 +713,7 @@ class GeneticOptimizerTest {
 			fail("Calculation had unexpected problems: " + e.getMessage());
 		}
 		long timeUsed = System.currentTimeMillis() - startTime;
+		optimizer.shutdownExecutorService();
 		
 		//the used time has to be more than the summed time of the runnables (only 1 thread is used -10ms to be shure)
 		assertTrue(timeUsed > 40);

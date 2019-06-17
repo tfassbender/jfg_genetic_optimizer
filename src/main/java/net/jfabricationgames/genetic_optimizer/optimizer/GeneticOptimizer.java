@@ -107,7 +107,6 @@ public class GeneticOptimizer {
 		selector = new StochasticallyDistributedSelector();
 		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 		usedThreads = 1;//no multi-threading by default
-		executorService = Executors.newFixedThreadPool(usedThreads);
 	}
 	/**
 	 * @param problem
@@ -137,7 +136,6 @@ public class GeneticOptimizer {
 		selector = new StochasticallyDistributedSelector();
 		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 		usedThreads = 1;//no multi-threading by default
-		executorService = Executors.newFixedThreadPool(usedThreads);
 	}
 	/**
 	 * @param problem
@@ -165,7 +163,6 @@ public class GeneticOptimizer {
 		this.abortCondition = abortCondition;
 		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 		usedThreads = 1;//no multi-threading by default
-		executorService = Executors.newFixedThreadPool(usedThreads);
 	}
 	/**
 	 * Used only for the builder pattern.
@@ -243,7 +240,6 @@ public class GeneticOptimizer {
 		this.elites = elites;
 		this.usedThreads = usedThreads;
 		
-		executorService = Executors.newFixedThreadPool(usedThreads);
 		progressProperty = new SimpleDoubleProperty(0, "GeneticOptimizerCalculationProgress");
 		
 		if (rootPopulation == null) {
@@ -258,6 +254,7 @@ public class GeneticOptimizer {
 		long start = System.nanoTime();
 		long timeUsed = 0;
 		
+		createExecutorService();
 		progressProperty.set(0);
 		
 		DNA[] population = new DNA[populationSize];
@@ -323,6 +320,9 @@ public class GeneticOptimizer {
 		else {
 			progressProperty.set(1d);
 		}
+		
+		//shutdown the executor threads after the calculation finished
+		shutdownExecutorService();
 	}
 	
 	private boolean isBestDNA(DNA dna) {
@@ -544,6 +544,22 @@ public class GeneticOptimizer {
 			tasksPerThread[i]++;
 		}
 		return tasksPerThread;
+	}
+	
+	/**
+	 * Create the executor service using a thread factory that creates daemon threads
+	 */
+	@VisibleForTesting
+	/*private*/ void createExecutorService() {
+		executorService = Executors.newFixedThreadPool(usedThreads, runnable -> {
+			Thread thread = new Thread(runnable);
+			thread.setDaemon(true);
+			return thread;
+		});
+	}
+	@VisibleForTesting
+	/*private*/ void shutdownExecutorService() {
+		executorService.shutdown();
 	}
 	
 	public DNA getBestDNA() {
